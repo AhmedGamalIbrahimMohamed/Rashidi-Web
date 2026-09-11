@@ -1,0 +1,600 @@
+/* ===========================================================================
+   RASHIDI IMPORT & EXPORT — design system
+   ---------------------------------------------------------------------------
+   Dark industrial ground, charcoal surfaces, one electric-blue accent.
+   Everything here is a token or a primitive; component styles live with their
+   components and consume these variables.
+   =========================================================================== */
+
+/* --- Tokens --------------------------------------------------------------- */
+
+:root {
+  /* Ground — a near-black with a cold cast, so blue reads as light, not paint. */
+  --ink-1000: #04060a;
+  --ink-900: #070a10;
+  --ink-850: #0a0e15;
+  --ink-800: #0e131c;
+  --ink-700: #141a25;
+  --ink-600: #1f2937; /* brand charcoal */
+  --ink-500: #2b3644;
+  --ink-400: #3a4656;
+
+  --white: #ffffff;
+  --text: #e8ecf2;
+  --text-soft: #a8b3c4;
+  --text-mute: #6b7688;
+
+  /* Brand accent — used sparingly: one blue thing per viewport, ideally. */
+  --blue: #007bff;
+  --blue-bright: #3d9bff;
+  --blue-soft: #7db8ff;
+  --blue-deep: #0052ad;
+  --blue-glow: rgba(0, 123, 255, 0.35);
+
+  /* Status colours for the catalogue. */
+  --status-available: #22d3a5;
+  --status-available-bg: rgba(34, 211, 165, 0.12);
+  --status-stock: #3d9bff;
+  --status-stock-bg: rgba(61, 155, 255, 0.12);
+  --status-sold: #8b95a7;
+  --status-sold-bg: rgba(139, 149, 167, 0.12);
+
+  --danger: #ff5c6c;
+  --warn: #ffb545;
+
+  /* Hairlines and glass. */
+  --line: rgba(255, 255, 255, 0.07);
+  --line-strong: rgba(255, 255, 255, 0.14);
+  --glass: rgba(20, 26, 37, 0.62);
+  --glass-strong: rgba(14, 19, 28, 0.86);
+
+  /* Type. Arabic swaps the display face; see [dir='rtl'] below. */
+  --font-display: 'Space Grotesk', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --font-body: 'Inter', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* Fluid type scale — clamp() means no breakpoint jumps in headings. */
+  --fs-display: clamp(2.75rem, 7.2vw, 6.5rem);
+  --fs-h1: clamp(2.25rem, 5vw, 4rem);
+  --fs-h2: clamp(1.75rem, 3.6vw, 3rem);
+  --fs-h3: clamp(1.25rem, 2.2vw, 1.75rem);
+  --fs-body: clamp(0.95rem, 1.05vw, 1.0625rem);
+  --fs-small: 0.875rem;
+  --fs-micro: 0.75rem;
+
+  /* Rhythm. */
+  --gutter: clamp(1.25rem, 4vw, 3.5rem);
+  --section-y: clamp(4.5rem, 10vw, 9rem);
+  --max-w: 1440px;
+  --max-w-text: 62ch;
+
+  --radius-sm: 6px;
+  --radius: 12px;
+  --radius-lg: 20px;
+
+  /* One easing curve for the whole site keeps motion coherent. */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 180ms;
+  --dur: 320ms;
+  --dur-slow: 620ms;
+
+  --header-h: 76px;
+
+  /* Logical inline direction — flips automatically under [dir='rtl'], which is
+     what lets a single transform value work in both layouts. */
+  --flip: 1;
+
+  color-scheme: dark;
+}
+
+[dir='rtl'] {
+  --flip: -1;
+  --font-display: 'IBM Plex Sans Arabic', 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans Arabic', 'Inter', system-ui, sans-serif;
+}
+
+/* --- Reset ---------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--ink-1000);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: 1.65;
+  font-synthesis-weight: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Locks scroll while the intro screen or mobile menu is open. */
+body.is-locked {
+  overflow: hidden;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+/* Arabic display type needs more leading and no negative tracking. */
+[dir='rtl'] h1,
+[dir='rtl'] h2,
+[dir='rtl'] h3,
+[dir='rtl'] h4 {
+  letter-spacing: 0;
+  line-height: 1.25;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+::selection {
+  background: var(--blue);
+  color: var(--white);
+}
+
+/* --- Scrollbar ------------------------------------------------------------ */
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--ink-900);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ink-500);
+  border-radius: 10px;
+  border: 2px solid var(--ink-900);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-400);
+}
+
+/* --- Focus ---------------------------------------------------------------- */
+
+:focus-visible {
+  outline: 2px solid var(--blue-bright);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+.skip-link {
+  position: absolute;
+  inset-inline-start: 1rem;
+  top: -100%;
+  z-index: 999;
+  padding: 0.75rem 1.25rem;
+  background: var(--blue);
+  color: var(--white);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  transition: top var(--dur) var(--ease);
+
+  &:focus {
+    top: 1rem;
+  }
+}
+
+/* --- Layout primitives ---------------------------------------------------- */
+
+.shell {
+  width: 100%;
+  max-width: var(--max-w);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  padding-block: var(--section-y);
+  position: relative;
+}
+
+/* --- Type primitives ------------------------------------------------------ */
+
+/* Small technical label above a heading — the "01 / SOURCING" device. */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--blue-bright);
+
+  &::before {
+    content: '';
+    width: 28px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--blue));
+  }
+}
+
+[dir='rtl'] .eyebrow {
+  letter-spacing: 0.08em;
+
+  &::before {
+    background: linear-gradient(to left, transparent, var(--blue));
+  }
+}
+
+.lead {
+  font-size: clamp(1.0625rem, 1.5vw, 1.25rem);
+  color: var(--text-soft);
+  max-width: var(--max-w-text);
+}
+
+.muted {
+  color: var(--text-mute);
+}
+
+/* --- Buttons -------------------------------------------------------------- */
+
+.btn {
+  --btn-bg: transparent;
+  --btn-fg: var(--text);
+  --btn-border: var(--line-strong);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  padding: 0.95rem 1.75rem;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  border: 1px solid var(--btn-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    transform var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+
+  /* Accent sweep revealed on hover — the only decorative motion on a button. */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--blue);
+    transform: scaleX(0);
+    transform-origin: calc((1 - var(--flip)) * 50%) 50%;
+    transition: transform var(--dur) var(--ease);
+  }
+
+  &:hover::before,
+  &:focus-visible::before {
+    transform: scaleX(1);
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: var(--white);
+    border-color: var(--blue);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    pointer-events: none;
+  }
+
+  /* Icon nudge follows reading direction. */
+  .btn__icon {
+    transition: transform var(--dur) var(--ease);
+  }
+
+  &:hover .btn__icon {
+    transform: translateX(calc(4px * var(--flip)));
+  }
+}
+
+.btn--primary {
+  --btn-bg: var(--blue);
+  --btn-fg: var(--white);
+  --btn-border: var(--blue);
+  box-shadow: 0 8px 30px -12px var(--blue-glow);
+
+  &::before {
+    background: var(--blue-bright);
+  }
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--blue-bright);
+    box-shadow: 0 12px 40px -10px var(--blue-glow);
+  }
+}
+
+.btn--ghost {
+  --btn-border: var(--line-strong);
+  backdrop-filter: blur(10px);
+}
+
+.btn--small {
+  padding: 0.6rem 1.1rem;
+  font-size: 0.8125rem;
+}
+
+.btn--block {
+  width: 100%;
+}
+
+/* --- Surfaces ------------------------------------------------------------- */
+
+/* Glass is used deliberately and rarely: header, overlays, status chips. */
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--line);
+}
+
+.panel {
+  background: linear-gradient(160deg, var(--ink-800), var(--ink-850));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+/* --- Technical decoration ------------------------------------------------- */
+
+/* Faint blueprint grid. Applied to sections that would otherwise read as a
+   flat black rectangle. */
+.grid-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, #000 20%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, #000 20%, transparent 75%);
+  opacity: 0.6;
+}
+
+/* Corner ticks — a cheap, precise way to make a card read as "technical". */
+.ticks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border: 1px solid var(--blue);
+    opacity: 0;
+    transition: opacity var(--dur) var(--ease);
+  }
+
+  &::before {
+    top: 10px;
+    inset-inline-start: 10px;
+    border-inline-end: 0;
+    border-bottom: 0;
+  }
+
+  &::after {
+    bottom: 10px;
+    inset-inline-end: 10px;
+    border-inline-start: 0;
+    border-top: 0;
+  }
+}
+
+/* Hairline divider with a blue node, used between sections. */
+.rule {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--line-strong), transparent);
+  border: 0;
+}
+
+/* --- Forms ---------------------------------------------------------------- */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: var(--fs-small);
+  font-weight: 500;
+  color: var(--text-soft);
+
+  .req {
+    color: var(--blue-bright);
+  }
+}
+
+.input,
+.textarea,
+.select {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  background: var(--ink-900);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 0.9375rem;
+  transition:
+    border-color var(--dur-fast) var(--ease),
+    background var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease);
+
+  &::placeholder {
+    color: var(--text-mute);
+  }
+
+  &:hover:not(:disabled) {
+    border-color: var(--ink-400);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--blue);
+    background: var(--ink-850);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &.is-invalid {
+    border-color: var(--danger);
+  }
+}
+
+.textarea {
+  min-height: 140px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.select {
+  appearance: none;
+  /* Chevron drawn inline so no icon font or image request is needed. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%236b7688' stroke-width='1.5' d='M1 1.5 6 6.5l5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-inline-end: 2.5rem;
+
+  option {
+    background: var(--ink-800);
+  }
+}
+
+[dir='rtl'] .select {
+  background-position: left 1rem center;
+  padding-inline-end: 1rem;
+  padding-inline-start: 2.5rem;
+}
+
+.field-error {
+  font-size: var(--fs-small);
+  color: var(--danger);
+}
+
+/* Honeypot — present in the DOM for bots, invisible and unreachable for people. */
+.honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* --- Utilities ------------------------------------------------------------ */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Applied by the reveal directive before GSAP takes over, so content is never
+   visible in its pre-animation state. Removed when animation is disabled. */
+[data-reveal] {
+  will-change: transform, opacity;
+}
+
+/* --- Motion preferences --------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

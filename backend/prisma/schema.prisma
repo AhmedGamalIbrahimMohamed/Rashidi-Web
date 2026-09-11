@@ -1,0 +1,255 @@
+// Rashidi Import & Export — data model
+// PostgreSQL + Prisma
+//
+// Bilingual strategy: every visitor-facing string is stored as two columns
+// (`...En` / `...Ar`). This keeps queries flat and indexable, avoids a join for
+// every label, and lets the admin edit both languages side by side in one form.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Auth
+// ---------------------------------------------------------------------------
+
+enum Role {
+  ADMIN
+  EDITOR
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String // bcrypt hash — never selected into API responses
+  name      String
+  role      Role     @default(EDITOR)
+  isActive  Boolean  @default(true)
+  lastLogin DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+// ---------------------------------------------------------------------------
+// Catalogue
+// ---------------------------------------------------------------------------
+
+enum MachineStatus {
+  AVAILABLE
+  IN_STOCK
+  SOLD
+}
+
+model Category {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  nameEn        String
+  nameAr        String
+  descriptionEn String?
+  descriptionAr String?
+  /// Optional decorative image for category headers / filters.
+  imageUrl      String?
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  machines Machine[]
+
+  @@index([sortOrder])
+  @@map("categories")
+}
+
+model Machine {
+  id   String @id @default(cuid())
+  /// SEO-friendly URL segment, e.g. "plastic-injection-molding-machine".
+  slug String @unique
+
+  nameEn String
+  nameAr String
+
+  /// One-line teaser used on the catalogue cards.
+  shortDescriptionEn String?
+  shortDescriptionAr String?
+
+  /// Long-form copy on the details page.
+  descriptionEn String? @db.Text
+  descriptionAr String? @db.Text
+
+  /// Free-form technical notes rendered below the spec table.
+  technicalInfoEn String? @db.Text
+  technicalInfoAr String? @db.Text
+
+  status MachineStatus @default(AVAILABLE)
+
+  /// Commercial metadata — optional, surfaced on the details page when present.
+  brand           String?
+  modelNumber     String?
+  manufactureYear Int?
+  countryOfOrigin String?
+  condition       String?
+
+  isFeatured  Boolean @default(false)
+  isPublished Boolean @default(true)
+  sortOrder   Int     @default(0)
+  viewCount   Int     @default(0)
+
+  /// Per-page SEO overrides. Falls back to name + shortDescription when null.
+  metaTitleEn       String?
+  metaTitleAr       String?
+  metaDescriptionEn String?
+  metaDescriptionAr String?
+
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  images         MachineImage[]
+  specifications MachineSpecification[]
+  documents      MachineDocument[]
+  inquiries      ContactMessage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([categoryId])
+  @@index([isPublished, sortOrder])
+  @@index([isFeatured])
+  @@map("machines")
+}
+
+model MachineImage {
+  id        String @id @default(cuid())
+  machineId String
+
+  /// Public URL of the full-size (optimised) image.
+  url String
+  /// Public URL of the ~640px card/gallery thumbnail.
+  thumbnailUrl String?
+  /// Driver-specific object key, kept so the file can be deleted from storage.
+  storageKey String
+
+  altEn String?
+  altAr String?
+
+  /// Exactly one image per machine carries isMain = true (enforced in the service layer).
+  isMain    Boolean @default(false)
+  sortOrder Int     @default(0)
+
+  width  Int?
+  height Int?
+  /// Tiny base64 LQIP used as the blur-up placeholder while the image loads.
+  blurDataUrl String? @db.Text
+
+  createdAt DateTime @default(now())
+
+  machine Machine @relation(fields: [machineId], references: [id], onDelete: Cascade)
+
+  @@index([machineId, sortOrder])
+  @@map("machine_images")
+}
+
+model MachineSpecification {
+  id        String @id @default(cuid())
+  machineId String
+
+  labelEn String
+  labelAr String
+  valueEn String
+  valueAr String
+  /// Optional grouping header, e.g. "Hydraulics" / "Electrical".
+  groupEn String?
+  groupAr String?
+
+  sortOrder Int @default(0)
+
+  machine Machine @relation(fields: [machineId], references: [id], onDelete: Cascade)
+
+  @@index([machineId, sortOrder])
+  @@map("machine_specifications")
+}
+
+model MachineDocument {
+  id        String @id @default(cuid())
+  machineId String
+
+  titleEn    String
+  titleAr    String
+  url        String
+  storageKey String
+  mimeType   String?
+  fileSize   Int?
+  sortOrder  Int     @default(0)
+
+  createdAt DateTime @default(now())
+
+  machine Machine @relation(fields: [machineId], references: [id], onDelete: Cascade)
+
+  @@index([machineId, sortOrder])
+  @@map("machine_documents")
+}
+
+// ---------------------------------------------------------------------------
+// Inbox
+// ---------------------------------------------------------------------------
+
+enum MessageStatus {
+  NEW
+  READ
+  REPLIED
+  ARCHIVED
+}
+
+model ContactMessage {
+  id      String  @id @default(cuid())
+  name    String
+  email   String
+  phone   String?
+  subject String
+  message String  @db.Text
+
+  /// Set when the enquiry was sent from a machine details page.
+  machineId String?
+  machine   Machine? @relation(fields: [machineId], references: [id], onDelete: SetNull)
+
+  status    MessageStatus @default(NEW)
+  /// Language the visitor was browsing in — useful when replying.
+  locale    String        @default("en")
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@map("contact_messages")
+}
+
+// ---------------------------------------------------------------------------
+// Editable site copy
+// ---------------------------------------------------------------------------
+
+/// Key/value store for everything the admin can edit outside the catalogue:
+/// About Us copy, contact details, social links, home-page headlines.
+/// `valueEn` / `valueAr` hold arbitrary JSON so a block can grow new fields
+/// without a migration.
+model SiteContent {
+  key        String   @id
+  /// Grouping used by the dashboard to render sections: "about" | "contact" | "home" | "footer".
+  group      String   @default("general")
+  labelEn    String?
+  labelAr    String?
+  valueEn    Json
+  valueAr    Json
+  sortOrder  Int      @default(0)
+  updatedAt  DateTime @updatedAt
+
+  @@index([group, sortOrder])
+  @@map("site_content")
+}
