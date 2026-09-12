@@ -83,7 +83,7 @@
 .msg__name {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--white);
+  color: var(--fg-strong);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -173,7 +173,7 @@
   font-size: 0.875rem;
 
   strong {
-    color: var(--white);
+    color: var(--fg-strong);
   }
 }
 
@@ -247,7 +247,7 @@
   }
 
   &.is-active {
-    color: var(--white);
+    color: var(--on-accent);
     background: var(--blue);
     border-color: var(--blue);
   }

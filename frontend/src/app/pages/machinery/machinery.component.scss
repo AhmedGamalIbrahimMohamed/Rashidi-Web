@@ -34,7 +34,7 @@
   top: 64px;
   z-index: 20;
   padding-block: 1.1rem;
-  background: rgba(7, 10, 16, 0.9);
+  background: var(--glass-strong);
   backdrop-filter: blur(16px) saturate(160%);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
   border-bottom: 1px solid var(--line);
@@ -74,12 +74,12 @@
     background var(--dur-fast) var(--ease);
 
   &:hover {
-    color: var(--white);
+    color: var(--fg-strong);
     border-color: var(--line-strong);
   }
 
   &.is-active {
-    color: var(--white);
+    color: var(--fg-strong);
     background: rgba(0, 123, 255, 0.16);
     border-color: var(--blue);
   }
@@ -231,7 +231,7 @@
     background var(--dur-fast) var(--ease);
 
   &:hover:not(:disabled) {
-    color: var(--white);
+    color: var(--fg-strong);
     border-color: var(--blue);
   }
 
@@ -245,7 +245,7 @@
   padding-inline: 0;
 
   &.is-active {
-    color: var(--white);
+    color: var(--on-accent);
     background: var(--blue);
     border-color: var(--blue);
   }

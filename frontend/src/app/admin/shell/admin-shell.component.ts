@@ -3,6 +3,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ContactService } from '../../core/services/contact.service';
 import { I18nService } from '../../core/services/i18n.service';
+import { ThemeService } from '../../core/services/theme.service';
 import { LogoComponent } from '../../shared/components/logo/logo.component';
 import { ToastComponent } from '../../shared/components/toast/toast.component';
 
@@ -27,11 +28,16 @@ interface AdminNavItem {
 })
 export class AdminShellComponent {
   protected readonly i18n = inject(I18nService);
+  protected readonly theme = inject(ThemeService);
   protected readonly auth = inject(AuthService);
   private readonly contact = inject(ContactService);
 
   protected readonly drawerOpen = signal(false);
   protected readonly unread = signal(0);
+
+  protected readonly themeLabel = computed(() =>
+    this.theme.isDark() ? this.i18n.dict().nav.switchToLight : this.i18n.dict().nav.switchToDark,
+  );
 
   protected readonly nav = computed<AdminNavItem[]>(() => {
     const dictionary = this.i18n.dict().admin.nav;

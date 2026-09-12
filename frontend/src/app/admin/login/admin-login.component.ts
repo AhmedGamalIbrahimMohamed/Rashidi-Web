@@ -116,7 +116,7 @@ import { LogoComponent } from '../../shared/components/logo/logo.component';
       background: linear-gradient(160deg, var(--ink-800), var(--ink-850));
       border: 1px solid var(--line-strong);
       border-radius: var(--radius-lg);
-      box-shadow: 0 40px 80px -40px rgba(0, 0, 0, 0.95);
+      box-shadow: var(--shadow-pop);
 
       .ticks::before,
       .ticks::after {
@@ -165,7 +165,7 @@ import { LogoComponent } from '../../shared/components/logo/logo.component';
       transition: color var(--dur-fast) var(--ease);
 
       &:hover {
-        color: var(--white);
+        color: var(--fg-strong);
       }
     }
 
@@ -193,7 +193,7 @@ import { LogoComponent } from '../../shared/components/logo/logo.component';
       width: 14px;
       height: 14px;
       border: 2px solid rgba(255, 255, 255, 0.3);
-      border-top-color: var(--white);
+      border-top-color: var(--on-accent);
       border-radius: 50%;
       animation: spin 640ms linear infinite;
     }

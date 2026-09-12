@@ -66,7 +66,7 @@
 .admin-card__title {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: var(--white);
+  color: var(--fg-strong);
   margin-bottom: 1rem;
 }
 
@@ -89,7 +89,7 @@
 .admin-section__title {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: var(--white);
+  color: var(--fg-strong);
 }
 
 .admin-section__hint {
@@ -224,7 +224,7 @@ textarea.admin-en {
     background var(--dur-fast) var(--ease);
 
   &:hover {
-    color: var(--white);
+    color: var(--fg-strong);
     border-color: var(--blue);
     background: rgba(0, 123, 255, 0.12);
   }
@@ -323,7 +323,7 @@ textarea.admin-en {
   border-color: var(--blue);
 
   &::after {
-    background: var(--white);
+    background: var(--on-accent);
     transform: translateX(calc(18px * var(--flip)));
   }
 }
@@ -354,7 +354,7 @@ textarea.admin-en {
 
 .admin-empty__title {
   font-size: 1.0625rem;
-  color: var(--white);
+  color: var(--fg-strong);
 }
 
 .admin-empty__body {

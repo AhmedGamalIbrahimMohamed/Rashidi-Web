@@ -111,7 +111,7 @@ import { MachineImage } from '../../../core/models/machine.model';
       width: 100%;
       height: 100%;
       color: var(--blue-bright);
-      opacity: 0.22;
+      opacity: var(--blueprint-opacity, 0.22);
     }
 
     .frame__caption {
@@ -121,7 +121,7 @@ import { MachineImage } from '../../../core/models/machine.model';
       letter-spacing: 0.16em;
       text-transform: uppercase;
       color: var(--text-mute);
-      background: rgba(4, 6, 10, 0.72);
+      background: var(--glass-strong);
       padding: 0.35rem 0.8rem;
       border: 1px solid var(--line);
       border-radius: 100px;

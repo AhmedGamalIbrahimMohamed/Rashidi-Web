@@ -59,7 +59,7 @@ import { I18nService } from '../../core/services/i18n.service';
       display: grid;
       place-items: center;
       padding: 1.25rem;
-      background: rgba(4, 6, 10, 0.78);
+      background: var(--scrim);
       backdrop-filter: blur(4px);
       animation: fade 180ms var(--ease);
     }
@@ -70,7 +70,7 @@ import { I18nService } from '../../core/services/i18n.service';
       background: var(--ink-800);
       border: 1px solid var(--line-strong);
       border-radius: var(--radius);
-      box-shadow: 0 30px 70px -30px rgba(0, 0, 0, 0.95);
+      box-shadow: var(--shadow-pop);
       animation: rise 220ms var(--ease);
     }
 
@@ -94,7 +94,7 @@ import { I18nService } from '../../core/services/i18n.service';
 
     .dialog__danger {
       --btn-bg: var(--danger);
-      --btn-fg: var(--white);
+      --btn-fg: var(--on-accent);
       --btn-border: var(--danger);
 
       &::before {

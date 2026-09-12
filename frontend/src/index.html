@@ -12,10 +12,34 @@
 
     <base href="/" />
 
-    <meta name="theme-color" content="#04060a" />
-    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="color-scheme" content="light dark" />
     <link rel="icon" type="image/png" href="favicon.png" />
     <link rel="apple-touch-icon" href="favicon.png" />
+
+    <!--
+      Applies the remembered theme before the first paint. This runs ahead of
+      the stylesheet and of Angular; without it a returning dark-mode visitor
+      sees a white flash for as long as the bundle takes to boot.
+      Light is the default, matching ThemeService.
+    -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('rashidi.theme');
+          var theme = stored === 'dark' ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', theme);
+          if (theme === 'dark') {
+            document.documentElement.style.setProperty('--boot-bg', '#0b1220');
+            document.documentElement.style.setProperty('--boot-track', 'rgba(255,255,255,0.12)');
+            var meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.setAttribute('content', '#0b1220');
+          }
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
 
     <!-- Open Graph / Twitter defaults. The SeoService overrides these per route. -->
     <meta property="og:type" content="website" />
@@ -43,10 +67,11 @@
        * It paints the same ground colour as the app to avoid a white flash, and
        * draws a minimal mark so the wait reads as intentional.
        */
+      /* Set by the boot script above for dark; light is the default. */
       html,
       body {
         margin: 0;
-        background: #04060a;
+        background: var(--boot-bg, #ffffff);
       }
 
       #boot {
@@ -55,7 +80,7 @@
         z-index: 10000;
         display: grid;
         place-items: center;
-        background: #04060a;
+        background: var(--boot-bg, #ffffff);
         transition: opacity 340ms ease, visibility 340ms ease;
       }
 
@@ -68,7 +93,7 @@
       #boot .mark {
         width: 46px;
         height: 46px;
-        border: 2px solid rgba(255, 255, 255, 0.1);
+        border: 2px solid var(--boot-track, rgba(17, 24, 39, 0.12));
         border-top-color: #007bff;
         border-radius: 50%;
         animation: boot-spin 720ms linear infinite;
@@ -83,7 +108,7 @@
       @media (prefers-reduced-motion: reduce) {
         #boot .mark {
           animation: none;
-          border-top-color: rgba(255, 255, 255, 0.1);
+          border-top-color: var(--boot-track, rgba(17, 24, 39, 0.12));
         }
       }
     </style>

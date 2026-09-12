@@ -4,6 +4,7 @@ import {
   Component,
   ElementRef,
   OnDestroy,
+  effect,
   inject,
   signal,
   viewChild,
@@ -11,6 +12,7 @@ import {
 import * as THREE from 'three';
 import { environment } from '../../../../environments/environment';
 import { MotionService } from '../../../core/services/motion.service';
+import { ThemeService } from '../../../core/services/theme.service';
 
 /**
  * Hero 3D object — an abstract machined assembly.
@@ -140,12 +142,16 @@ import { MotionService } from '../../../core/services/motion.service';
 })
 export class HeroSceneComponent implements AfterViewInit, OnDestroy {
   private readonly motion = inject(MotionService);
+  private readonly theme = inject(ThemeService);
 
   private readonly canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
   private readonly hostRef = viewChild.required<ElementRef<HTMLElement>>('host');
 
   /** True once WebGL is up and the first frame has been drawn. */
   protected readonly active = signal(false);
+
+  /** The theme the live scene was built for, so a switch can be detected. */
+  private builtFor: 'light' | 'dark' | null = null;
 
   private renderer?: THREE.WebGLRenderer;
   private scene?: THREE.Scene;
@@ -176,6 +182,22 @@ export class HeroSceneComponent implements AfterViewInit, OnDestroy {
     if (document.hidden) this.pause();
     else this.resume();
   };
+
+  constructor() {
+    /*
+     * Lighting, the environment map and the material colours all differ by
+     * theme, and several are baked in at construction time. Rather than mutate
+     * a dozen properties in place, the scene is torn down and rebuilt — a theme
+     * switch is a rare, deliberate action, and a rebuild is both simpler and
+     * guaranteed to be consistent. Does nothing until a scene actually exists.
+     */
+    effect(() => {
+      const next = this.theme.isDark() ? 'dark' : 'light';
+      if (!this.renderer || this.builtFor === next) return;
+      this.teardown();
+      requestAnimationFrame(() => this.init());
+    });
+  }
 
   ngAfterViewInit(): void {
     if (!this.shouldRender()) return;
@@ -221,6 +243,7 @@ export class HeroSceneComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
+    this.builtFor = this.theme.isDark() ? 'dark' : 'light';
     this.active.set(true);
   }
 
@@ -273,20 +296,33 @@ export class HeroSceneComponent implements AfterViewInit, OnDestroy {
     canvas.width = size;
     canvas.height = size;
 
+    // Metal is mostly reflection, so the environment — not the material — is
+    // what decides whether the object reads as dark steel or bright chrome.
+    // On a white page a dark environment makes the object look like a hole.
+    const dark = this.theme.isDark();
+
     const context = canvas.getContext('2d');
     if (context) {
       const gradient = context.createLinearGradient(0, 0, 0, size);
-      gradient.addColorStop(0, '#0b1320'); // sky: deep charcoal
-      gradient.addColorStop(0.42, '#2a3a52');
-      gradient.addColorStop(0.52, '#8fb8e8'); // horizon: cool highlight
-      gradient.addColorStop(0.62, '#16202e');
-      gradient.addColorStop(1, '#05070b'); // ground
+      if (dark) {
+        gradient.addColorStop(0, '#0b1320'); // sky: deep charcoal
+        gradient.addColorStop(0.42, '#2a3a52');
+        gradient.addColorStop(0.52, '#8fb8e8'); // horizon: cool highlight
+        gradient.addColorStop(0.62, '#16202e');
+        gradient.addColorStop(1, '#05070b'); // ground
+      } else {
+        gradient.addColorStop(0, '#ffffff'); // sky: bright studio
+        gradient.addColorStop(0.44, '#dbe6f5');
+        gradient.addColorStop(0.52, '#ffffff'); // horizon: specular band
+        gradient.addColorStop(0.62, '#aebfd6');
+        gradient.addColorStop(1, '#5d6b80'); // ground: mid grey, keeps form
+      }
       context.fillStyle = gradient;
       context.fillRect(0, 0, size, size);
 
       // A single bright patch reads as a workshop light in the reflections.
       const spot = context.createRadialGradient(size * 0.72, size * 0.3, 0, size * 0.72, size * 0.3, size * 0.3);
-      spot.addColorStop(0, 'rgba(255,255,255,0.9)');
+      spot.addColorStop(0, `rgba(255,255,255,${dark ? 0.9 : 1})`);
       spot.addColorStop(1, 'rgba(255,255,255,0)');
       context.fillStyle = spot;
       context.fillRect(0, 0, size, size);
@@ -305,19 +341,23 @@ export class HeroSceneComponent implements AfterViewInit, OnDestroy {
   }
 
   private addLights(scene: THREE.Scene): void {
-    scene.add(new THREE.AmbientLight(0x8fb8e8, 0.45));
+    const dark = this.theme.isDark();
 
-    const key = new THREE.DirectionalLight(0xffffff, 2.4);
+    scene.add(new THREE.AmbientLight(0x8fb8e8, dark ? 0.45 : 1.1));
+
+    const key = new THREE.DirectionalLight(0xffffff, dark ? 2.4 : 3.1);
     key.position.set(4, 5, 6);
     scene.add(key);
 
     // Electric-blue rim from behind-left, the accent that ties the object to
-    // the brand without colouring the whole material.
-    const rim = new THREE.PointLight(0x007bff, 90, 26, 2);
+    // the brand without colouring the whole material. A rim glow only reads
+    // against a dark ground, so light mode dials it right back and leans on
+    // the environment reflection instead.
+    const rim = new THREE.PointLight(0x007bff, dark ? 90 : 34, 26, 2);
     rim.position.set(-5, 1.5, -4);
     scene.add(rim);
 
-    const fill = new THREE.PointLight(0x3d9bff, 32, 22, 2);
+    const fill = new THREE.PointLight(0x3d9bff, dark ? 32 : 14, 22, 2);
     fill.position.set(3.5, -3, 2.5);
     scene.add(fill);
   }
@@ -325,18 +365,20 @@ export class HeroSceneComponent implements AfterViewInit, OnDestroy {
   private addAssembly(scene: THREE.Scene): void {
     const group = new THREE.Group();
 
+    const dark = this.theme.isDark();
+
     const steel = new THREE.MeshStandardMaterial({
-      color: 0x9aa6b8,
+      color: dark ? 0x9aa6b8 : 0xc3ccd9,
       metalness: 0.98,
-      roughness: 0.28,
-      envMapIntensity: 1.25,
+      roughness: dark ? 0.28 : 0.22,
+      envMapIntensity: dark ? 1.25 : 1.5,
     });
 
     const darkSteel = new THREE.MeshStandardMaterial({
-      color: 0x2b3644,
+      color: dark ? 0x2b3644 : 0x64748b,
       metalness: 0.9,
       roughness: 0.42,
-      envMapIntensity: 0.9,
+      envMapIntensity: dark ? 0.9 : 1.2,
     });
 
     const accent = new THREE.MeshStandardMaterial({
@@ -344,7 +386,7 @@ export class HeroSceneComponent implements AfterViewInit, OnDestroy {
       metalness: 0.35,
       roughness: 0.22,
       emissive: 0x0a5fd0,
-      emissiveIntensity: 1.5,
+      emissiveIntensity: dark ? 1.5 : 0.55,
     });
 
     // Turned shaft: the radii step the way a lathe would cut them.
@@ -391,7 +433,11 @@ export class HeroSceneComponent implements AfterViewInit, OnDestroy {
     // Wireframe tolerance cage.
     const cage = new THREE.LineSegments(
       new THREE.EdgesGeometry(new THREE.IcosahedronGeometry(3.5, 1)),
-      new THREE.LineBasicMaterial({ color: 0x1e6fd0, transparent: true, opacity: 0.28 }),
+      new THREE.LineBasicMaterial({
+        color: dark ? 0x1e6fd0 : 0x94a3b8,
+        transparent: true,
+        opacity: dark ? 0.28 : 0.4,
+      }),
     );
     group.add(cage);
     this.cage = cage;
@@ -418,10 +464,10 @@ export class HeroSceneComponent implements AfterViewInit, OnDestroy {
     const points = new THREE.Points(
       geometry,
       new THREE.PointsMaterial({
-        color: 0x6da8f0,
+        color: this.theme.isDark() ? 0x6da8f0 : 0x7e93ad,
         size: 0.035,
         transparent: true,
-        opacity: 0.55,
+        opacity: this.theme.isDark() ? 0.55 : 0.4,
         sizeAttenuation: true,
         depthWrite: false,
       }),
@@ -517,6 +563,7 @@ export class HeroSceneComponent implements AfterViewInit, OnDestroy {
     this.renderer = undefined;
     this.scene = undefined;
     this.camera = undefined;
+    this.builtFor = null;
     this.active.set(false);
   }
 }

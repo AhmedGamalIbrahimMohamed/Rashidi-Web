@@ -1,13 +1,16 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { I18nService } from '../../../core/services/i18n.service';
+import { ThemeService } from '../../../core/services/theme.service';
 
 /**
  * The brand mark.
  *
  * `variant="lockup"` renders the full mark + wordmark for the intro and footer;
  * `variant="mark"` renders the R on its own for the compact header and mobile.
- * Both are the supplied brand artwork with a real alpha channel, so they sit on
- * any dark surface without a plate behind them.
+ *
+ * Two colourways ship, per the brand sheet: white ink for dark surfaces and
+ * charcoal ink for light ones. Both are the same artwork and share an identical
+ * alpha mask, so switching theme swaps the file without any shift in position.
  */
 @Component({
   selector: 'app-logo',
@@ -16,7 +19,7 @@ import { I18nService } from '../../../core/services/i18n.service';
     <span class="logo" [class.logo--lockup]="variant() === 'lockup'">
       <img
         class="logo__img"
-        [src]="variant() === 'lockup' ? 'logo.png' : 'logo-mark.png'"
+        [src]="source()"
         [attr.width]="variant() === 'lockup' ? 720 : 420"
         [attr.height]="variant() === 'lockup' ? 448 : 284"
         [alt]="alt()"
@@ -43,9 +46,12 @@ import { I18nService } from '../../../core/services/i18n.service';
     .logo__img {
       height: var(--logo-h, 34px);
       width: auto;
-      /* The artwork has no drop shadow of its own; a faint blue bloom keeps it
-         from looking pasted onto the dark ground. */
-      filter: drop-shadow(0 0 14px rgba(0, 123, 255, 0.18));
+    }
+
+    /* A faint blue bloom keeps the white mark from looking pasted onto the dark
+       ground. On white it would only read as a smudge, so it is dark-only. */
+    :host-context(:root[data-theme='dark']) .logo__img {
+      filter: drop-shadow(0 0 14px rgba(96, 165, 250, 0.22));
     }
 
     .logo--lockup .logo__img {
@@ -64,7 +70,7 @@ import { I18nService } from '../../../core/services/i18n.service';
       font-weight: 700;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: var(--white);
+      color: var(--fg-strong);
     }
 
     .logo__sub {
@@ -94,10 +100,17 @@ import { I18nService } from '../../../core/services/i18n.service';
 })
 export class LogoComponent {
   protected readonly i18n = inject(I18nService);
+  private readonly theme = inject(ThemeService);
 
   readonly variant = input<'mark' | 'lockup'>('mark');
   readonly withWordmark = input(true);
   readonly eager = input(false);
 
   protected readonly alt = computed(() => this.i18n.dict().brand.full);
+
+  /** White ink on dark surfaces, charcoal ink on light ones. */
+  protected readonly source = computed(() => {
+    const base = this.variant() === 'lockup' ? 'logo' : 'logo-mark';
+    return this.theme.isDark() ? `${base}.png` : `${base}-light.png`;
+  });
 }

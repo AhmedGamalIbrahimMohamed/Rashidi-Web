@@ -116,7 +116,7 @@ const passwordsMatch = (group: AbstractControl) => {
       }
 
       dd {
-        color: var(--white);
+        color: var(--fg-strong);
         font-weight: 500;
         text-align: end;
         word-break: break-word;

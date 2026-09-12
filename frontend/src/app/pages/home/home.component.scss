@@ -81,7 +81,7 @@
 }
 
 .hero__accent {
-  background: linear-gradient(100deg, var(--white) 0%, var(--blue-soft) 45%, var(--blue) 100%);
+  background: linear-gradient(100deg, var(--fg-strong) 0%, var(--blue-soft) 45%, var(--blue) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -203,7 +203,7 @@
   font-weight: 700;
   line-height: 1;
   letter-spacing: -0.03em;
-  background: linear-gradient(160deg, var(--white), var(--blue-soft));
+  background: linear-gradient(160deg, var(--fg-strong), var(--blue-soft));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -272,7 +272,7 @@
 .capability__title {
   font-size: 1.0625rem;
   line-height: 1.35;
-  color: var(--white);
+  color: var(--fg-strong);
 }
 
 .capability__body {

@@ -180,7 +180,7 @@ import { ConfirmDialogComponent } from '../shared/confirm-dialog.component';
     .cat__name {
       font-size: 0.9375rem;
       font-weight: 600;
-      color: var(--white);
+      color: var(--fg-strong);
     }
 
     .cat__slug {

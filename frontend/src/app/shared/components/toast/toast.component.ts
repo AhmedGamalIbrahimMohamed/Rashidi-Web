@@ -41,7 +41,7 @@ import { ToastService } from '../../../core/services/toast.service';
       border: 1px solid var(--line-strong);
       border-radius: var(--radius-sm);
       backdrop-filter: blur(14px);
-      box-shadow: 0 16px 40px -20px rgba(0, 0, 0, 0.9);
+      box-shadow: var(--shadow-card);
       pointer-events: auto;
       animation: toast-in 320ms var(--ease);
     }
@@ -76,7 +76,7 @@ import { ToastService } from '../../../core/services/toast.service';
       transition: color var(--dur-fast) var(--ease);
 
       &:hover {
-        color: var(--white);
+        color: var(--fg-strong);
       }
     }
 

@@ -190,6 +190,46 @@ Nothing is resized at request time.
 
 ---
 
+## Themes
+
+Light and dark, both taken from the brand sheet. **Light is the default** — a
+first-time visitor always gets it, regardless of their OS setting — and the
+toggle sits beside the language switcher in the header (and in the dashboard
+top bar). The choice is remembered in `localStorage`.
+
+| Role | Light | Dark |
+| --- | --- | --- |
+| Page background | White `#FFFFFF` | Deep Charcoal `#0B1220` |
+| Secondary band | Cool Gray `#F3F4F6` | `#0E1524` |
+| Surface / cards | Soft White `#F9FAFB` | Dark Slate `#111827` |
+| Main text | Deep Charcoal `#111827` | White `#F8FAFC` |
+| Secondary text | Slate Gray `#64748B` | Cool Gray `#CBD5E1` |
+| Borders | Light Gray `#E2E8F0` | Dark Gray `#273449` |
+| Accent | Electric Blue `#007BFF` | Electric Blue `#3B82F6` |
+| Accent hover | `#0069D9` | Light Blue `#60A5FA` |
+
+Both themes are defined as the *same token names* with different values in
+`src/styles.scss`, so no component stylesheet knows which theme is active.
+Two naming rules make that work:
+
+- `--fg-strong` is the strongest foreground — charcoal on light, near-white on
+  dark. It is named for its role, never its colour.
+- `--on-accent` is always white: text and marks sitting on a filled blue or red
+  background, where the colour must not flip.
+
+Three things need more than a colour swap, and are handled explicitly:
+
+- **The logo** ships in two colourways. They are the same artwork sharing one
+  alpha mask, so the swap causes no shift in weight or position.
+- **The 3D hero** is mostly reflection, so a dark environment map would make the
+  object read as a hole on a white page. The scene rebuilds with a bright studio
+  environment and stronger key light in light mode.
+- **The first paint.** A small inline script in `index.html` applies the stored
+  theme before the stylesheet loads, so a returning dark-mode visitor never sees
+  a white flash while the bundle boots.
+
+---
+
 ## Languages and RTL
 
 English is the default; the switcher sits in the header. Switching sets `lang`

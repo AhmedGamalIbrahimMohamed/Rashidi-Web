@@ -91,6 +91,9 @@ import { StatusBadgeComponent } from '../status-badge/status-badge.component';
       border-radius: var(--radius);
       overflow: hidden;
       isolation: isolate;
+      /* Light themes need real elevation where a dark theme gets away with a
+         border alone. */
+      box-shadow: var(--shadow-card);
       transition:
         border-color var(--dur) var(--ease),
         transform var(--dur) var(--ease),
@@ -112,7 +115,7 @@ import { StatusBadgeComponent } from '../status-badge/status-badge.component';
     .card__scrim {
       position: absolute;
       inset: 0;
-      background: linear-gradient(to top, rgba(4, 6, 10, 0.85) 0%, transparent 55%);
+      background: linear-gradient(to top, var(--scrim) 0%, transparent 46%);
       pointer-events: none;
     }
 
@@ -166,7 +169,7 @@ import { StatusBadgeComponent } from '../status-badge/status-badge.component';
     .card__title {
       font-size: 1.125rem;
       line-height: 1.25;
-      color: var(--white);
+      color: var(--fg-strong);
       transition: color var(--dur) var(--ease);
       /* Two lines maximum keeps every card in a row the same height. */
       display: -webkit-box;
@@ -228,8 +231,8 @@ import { StatusBadgeComponent } from '../status-badge/status-badge.component';
       border-color: rgba(0, 123, 255, 0.45);
       transform: translateY(-4px);
       box-shadow:
-        0 24px 48px -28px rgba(0, 0, 0, 0.9),
-        0 0 0 1px rgba(0, 123, 255, 0.12);
+        var(--shadow-card-hover),
+        0 0 0 1px color-mix(in srgb, var(--blue) 14%, transparent);
     }
 
     .card:hover app-machine-image,
@@ -259,11 +262,11 @@ import { StatusBadgeComponent } from '../status-badge/status-badge.component';
     /* Sold machines are visibly retired without being hidden — a sold unit still
        tells a visitor what this company handles. */
     .card[data-status='SOLD'] app-machine-image {
-      filter: saturate(0.45) brightness(0.72);
+      filter: var(--sold-filter);
     }
 
     .card[data-status='SOLD']:hover app-machine-image {
-      filter: saturate(0.7) brightness(0.85);
+      filter: var(--sold-filter-hover);
     }
 
     @media (hover: none) {

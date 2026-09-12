@@ -22,6 +22,11 @@ export const en = {
     open: 'Open menu',
     language: 'Language',
     switchTo: 'Switch to Arabic',
+    theme: 'Theme',
+    themeLight: 'Light',
+    themeDark: 'Dark',
+    switchToDark: 'Switch to dark mode',
+    switchToLight: 'Switch to light mode',
   },
 
   intro: {

@@ -31,7 +31,7 @@
   }
 
   &.is-active {
-    color: var(--white);
+    color: var(--fg-strong);
     background: rgba(0, 123, 255, 0.16);
     border-color: var(--blue);
   }
@@ -156,6 +156,6 @@
   .pair__label {
     padding-top: 0;
     font-weight: 500;
-    color: var(--white);
+    color: var(--fg-strong);
   }
 }

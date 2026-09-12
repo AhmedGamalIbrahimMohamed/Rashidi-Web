@@ -12,6 +12,7 @@ import {
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
 import { I18nService } from '../../core/services/i18n.service';
+import { ThemeService } from '../../core/services/theme.service';
 import { LogoComponent } from '../../shared/components/logo/logo.component';
 
 /**
@@ -33,11 +34,16 @@ import { LogoComponent } from '../../shared/components/logo/logo.component';
 })
 export class HeaderComponent implements OnDestroy {
   protected readonly i18n = inject(I18nService);
+  protected readonly theme = inject(ThemeService);
   private readonly router = inject(Router);
   private readonly document = inject(DOCUMENT);
 
   protected readonly scrolled = signal(false);
   protected readonly menuOpen = signal(false);
+
+  protected readonly themeLabel = computed(() =>
+    this.theme.isDark() ? this.i18n.dict().nav.switchToLight : this.i18n.dict().nav.switchToDark,
+  );
 
   protected readonly links = computed(() => {
     const dictionary = this.i18n.dict();

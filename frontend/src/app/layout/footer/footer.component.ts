@@ -125,7 +125,7 @@ import { LogoComponent } from '../../shared/components/logo/logo.component';
       font-weight: 500;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--white);
+      color: var(--fg-strong);
       margin-bottom: 0.35rem;
     }
 

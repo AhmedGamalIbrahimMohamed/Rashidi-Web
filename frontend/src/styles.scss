@@ -3,53 +3,139 @@
 /* ===========================================================================
    RASHIDI IMPORT & EXPORT — design system
    ---------------------------------------------------------------------------
-   Dark industrial ground, charcoal surfaces, one electric-blue accent.
-   Everything here is a token or a primitive; component styles live with their
-   components and consume these variables.
+   Two themes from one set of token names. Light is the default; `data-theme`
+   on <html> switches to dark. Component styles never name a raw colour — they
+   consume these variables, so a theme swap needs no component changes.
+
+   The `--ink-*` ramp is ordered by ELEVATION, not by lightness:
+     ink-1000  page ground        ink-800  elevated surface / hover
+     ink-900   alternate band     ink-700  deeper inset
+     ink-850   card surface       ink-600..400  muted UI furniture
+   In light mode the ramp runs white → grey; in dark mode near-black → slate.
    =========================================================================== */
 
-/* --- Tokens --------------------------------------------------------------- */
+/* --- Light theme (default) ------------------------------------------------ */
 
 :root {
-  /* Ground — a near-black with a cold cast, so blue reads as light, not paint. */
-  --ink-1000: #04060a;
-  --ink-900: #070a10;
-  --ink-850: #0a0e15;
-  --ink-800: #0e131c;
-  --ink-700: #141a25;
-  --ink-600: #1f2937; /* brand charcoal */
-  --ink-500: #2b3644;
-  --ink-400: #3a4656;
+  --ink-1000: #ffffff; /* White        — page background   */
+  --ink-900: #f3f4f6; /* Cool Gray     — secondary band    */
+  --ink-850: #f9fafb; /* Soft White    — surface / cards   */
+  --ink-800: #ffffff; /* White         — elevated / hover  */
+  --ink-700: #eef1f5;
+  --ink-600: #e2e8f0; /* Light Gray    — control tracks    */
+  --ink-500: #cbd5e1;
+  --ink-400: #94a3b8;
 
-  --white: #ffffff;
-  --text: #e8ecf2;
-  --text-soft: #a8b3c4;
-  --text-mute: #6b7688;
+  /* Strongest foreground: headings and emphasis. Named for its role, not its
+     colour — it is charcoal here and near-white in dark mode. */
+  --fg-strong: #111827; /* Deep Charcoal — main text       */
+  --text: #1f2937; /* Charcoal          — body text       */
+  --text-soft: #475569;
+  --text-mute: #64748b; /* Slate Gray   — secondary text    */
+
+  /* Always white: text and marks sitting on a filled accent or danger colour,
+     in both themes. */
+  --on-accent: #ffffff;
 
   /* Brand accent — used sparingly: one blue thing per viewport, ideally. */
-  --blue: #007bff;
-  --blue-bright: #3d9bff;
-  --blue-soft: #7db8ff;
+  --blue: #007bff; /* Electric Blue (light) */
+  --blue-bright: #0069d9;
+  --blue-soft: #3b82f6;
   --blue-deep: #0052ad;
-  --blue-glow: rgba(0, 123, 255, 0.35);
+  --blue-glow: rgba(0, 123, 255, 0.28);
 
   /* Status colours for the catalogue. */
+  --status-available: #0f9d75;
+  --status-available-bg: rgba(15, 157, 117, 0.1);
+  --status-stock: #1d6fd8;
+  --status-stock-bg: rgba(29, 111, 216, 0.1);
+  --status-sold: #64748b;
+  --status-sold-bg: rgba(100, 116, 139, 0.1);
+
+  --danger: #dc2626;
+  --warn: #b45309;
+
+  /* Hairlines and glass. */
+  --line: #e2e8f0; /* Light Gray — borders */
+  --line-strong: #cbd5e1;
+  --glass: rgba(255, 255, 255, 0.72);
+  --glass-strong: rgba(255, 255, 255, 0.9);
+
+  /* Depth of the shadow a card lifts into. Light themes need real shadow where
+     dark themes get away with a border. */
+  --shadow-card: 0 18px 40px -24px rgba(17, 24, 39, 0.3);
+  --shadow-card-hover: 0 24px 48px -20px rgba(17, 24, 39, 0.32);
+  --shadow-pop: 0 30px 70px -30px rgba(17, 24, 39, 0.35);
+
+  /* Tint strength for the faint blueprint grid and hero aura. */
+  --aura: rgba(0, 123, 255, 0.1);
+  /*
+   * Gradient laid over the bottom of a machine photograph so the status badge
+   * stays legible. Much weaker on light: the badge carries its own tinted
+   * background, and a strong scrim over a pale image just reads as grime.
+   */
+  --scrim: rgba(17, 24, 39, 0.42);
+  /* The blueprint placeholder needs more ink to register on a white card. */
+  --blueprint-opacity: 0.42;
+  /* Sold machines are visibly retired. Light needs less darkening than dark. */
+  --sold-filter: saturate(0.4) brightness(0.94);
+  --sold-filter-hover: saturate(0.7) brightness(0.99);
+
+  color-scheme: light;
+}
+
+/* --- Dark theme ----------------------------------------------------------- */
+
+:root[data-theme='dark'] {
+  --ink-1000: #0b1220; /* Deep Charcoal — page background  */
+  --ink-900: #0e1524;
+  --ink-850: #111827; /* Dark Slate    — surface / cards  */
+  --ink-800: #172033;
+  --ink-700: #1d2739;
+  --ink-600: #273449; /* Dark Gray     — control tracks   */
+  --ink-500: #33415a;
+  --ink-400: #475569;
+
+  --fg-strong: #f8fafc; /* White        — headings          */
+  --text: #e2e8f0;
+  --text-soft: #cbd5e1; /* Cool Gray    — secondary text    */
+  --text-mute: #8b9bb4;
+
+  --blue: #3b82f6; /* Electric Blue (dark) */
+  --blue-bright: #60a5fa; /* Light Blue — accent hover */
+  --blue-soft: #93c5fd;
+  --blue-deep: #1d4ed8;
+  --blue-glow: rgba(59, 130, 246, 0.35);
+
   --status-available: #22d3a5;
-  --status-available-bg: rgba(34, 211, 165, 0.12);
-  --status-stock: #3d9bff;
-  --status-stock-bg: rgba(61, 155, 255, 0.12);
+  --status-available-bg: rgba(34, 211, 165, 0.14);
+  --status-stock: #60a5fa;
+  --status-stock-bg: rgba(96, 165, 250, 0.14);
   --status-sold: #8b95a7;
-  --status-sold-bg: rgba(139, 149, 167, 0.12);
+  --status-sold-bg: rgba(139, 149, 167, 0.14);
 
   --danger: #ff5c6c;
   --warn: #ffb545;
 
-  /* Hairlines and glass. */
-  --line: rgba(255, 255, 255, 0.07);
-  --line-strong: rgba(255, 255, 255, 0.14);
-  --glass: rgba(20, 26, 37, 0.62);
-  --glass-strong: rgba(14, 19, 28, 0.86);
+  --line: #273449; /* Dark Gray — borders */
+  --line-strong: #33415a;
+  --glass: rgba(17, 24, 39, 0.7);
+  --glass-strong: rgba(11, 18, 32, 0.88);
 
+  --shadow-card: 0 20px 44px -28px rgba(0, 0, 0, 0.85);
+  --shadow-card-hover: 0 24px 48px -24px rgba(0, 0, 0, 0.9);
+  --shadow-pop: 0 30px 70px -30px rgba(0, 0, 0, 0.95);
+
+  --aura: rgba(59, 130, 246, 0.16);
+  --scrim: rgba(4, 8, 16, 0.85);
+  --blueprint-opacity: 0.22;
+  --sold-filter: saturate(0.45) brightness(0.72);
+  --sold-filter-hover: saturate(0.7) brightness(0.85);
+
+  color-scheme: dark;
+}
+
+:root {
   /* Type. Arabic swaps the display face; see [dir='rtl'] below. */
   --font-display: 'Space Grotesk', 'IBM Plex Sans Arabic', system-ui, sans-serif;
   --font-body: 'Inter', 'IBM Plex Sans Arabic', system-ui, sans-serif;
@@ -86,8 +172,6 @@
   /* Logical inline direction — flips automatically under [dir='rtl'], which is
      what lets a single transform value work in both layouts. */
   --flip: 1;
-
-  color-scheme: dark;
 }
 
 [dir='rtl'] {
@@ -130,6 +214,34 @@ body {
 /* Locks scroll while the intro screen or mobile menu is open. */
 body.is-locked {
   overflow: hidden;
+}
+
+/*
+ * Theme crossfade. The transition is applied only for the ~300ms around a
+ * switch — ThemeService adds this class, flips `data-theme`, then removes it.
+ * A permanent transition on every element would tax every hover and scroll;
+ * a hard swap on a page this dense looks broken.
+ */
+html.theme-switching,
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition:
+    background-color 280ms var(--ease),
+    border-color 280ms var(--ease),
+    color 280ms var(--ease),
+    fill 280ms var(--ease),
+    box-shadow 280ms var(--ease) !important;
+  transition-delay: 0s !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.theme-switching,
+  html.theme-switching *,
+  html.theme-switching *::before,
+  html.theme-switching *::after {
+    transition: none !important;
+  }
 }
 
 img,
@@ -186,7 +298,7 @@ p {
 
 ::selection {
   background: var(--blue);
-  color: var(--white);
+  color: var(--on-accent);
 }
 
 /* --- Scrollbar ------------------------------------------------------------ */
@@ -222,7 +334,7 @@ p {
   z-index: 999;
   padding: 0.75rem 1.25rem;
   background: var(--blue);
-  color: var(--white);
+  color: var(--on-accent);
   border-radius: var(--radius-sm);
   font-weight: 600;
   transition: top var(--dur) var(--ease);
@@ -336,7 +448,7 @@ p {
 
   &:hover,
   &:focus-visible {
-    color: var(--white);
+    color: var(--on-accent);
     border-color: var(--blue);
   }
 
@@ -361,7 +473,7 @@ p {
 
 .btn--primary {
   --btn-bg: var(--blue);
-  --btn-fg: var(--white);
+  --btn-fg: var(--on-accent);
   --btn-border: var(--blue);
   box-shadow: 0 8px 30px -12px var(--blue-glow);
 

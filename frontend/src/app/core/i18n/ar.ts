@@ -21,6 +21,11 @@ export const ar: TranslationShape = {
     open: 'فتح القائمة',
     language: 'اللغة',
     switchTo: 'التبديل إلى الإنجليزية',
+    theme: 'المظهر',
+    themeLight: 'فاتح',
+    themeDark: 'داكن',
+    switchToDark: 'التبديل إلى المظهر الداكن',
+    switchToLight: 'التبديل إلى المظهر الفاتح',
   },
 
   intro: {

@@ -67,8 +67,8 @@ import { LogoComponent } from '../../shared/components/logo/logo.component';
       position: absolute;
       inset: 0;
       background-image:
-        linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+        linear-gradient(var(--line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line) 1px, transparent 1px);
       background-size: 64px 64px;
       mask-image: radial-gradient(circle at 50% 50%, #000 5%, transparent 62%);
       -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 5%, transparent 62%);
@@ -115,7 +115,7 @@ import { LogoComponent } from '../../shared/components/logo/logo.component';
       position: relative;
       width: min(240px, 54vw);
       height: 2px;
-      background: rgba(255, 255, 255, 0.09);
+      background: var(--line-strong);
       overflow: hidden;
     }
 
