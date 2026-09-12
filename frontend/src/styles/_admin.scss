@@ -1,0 +1,398 @@
+/* ===========================================================================
+   ADMIN DASHBOARD — shared styles
+   ---------------------------------------------------------------------------
+   Scoped under `.admin`, loaded globally rather than duplicated into eight
+   component stylesheets. The dashboard is a denser, quieter surface than the
+   public site: no glass, no glow, tighter rhythm, faster transitions.
+   =========================================================================== */
+
+.admin {
+  --admin-sidebar: 248px;
+  --admin-pad: clamp(1.25rem, 3vw, 2.25rem);
+
+  min-height: 100vh;
+  background: var(--ink-900);
+}
+
+/* --- Page scaffold -------------------------------------------------------- */
+
+.admin-page {
+  padding: var(--admin-pad);
+  max-width: 1400px;
+}
+
+.admin-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.admin-title {
+  font-size: clamp(1.375rem, 2.4vw, 1.875rem);
+  letter-spacing: -0.02em;
+}
+
+[dir='rtl'] .admin-title {
+  letter-spacing: 0;
+}
+
+.admin-subtitle {
+  margin-top: 0.35rem;
+  font-size: 0.875rem;
+  color: var(--text-mute);
+  max-width: 62ch;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+/* --- Cards ---------------------------------------------------------------- */
+
+.admin-card {
+  background: var(--ink-850);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: clamp(1.1rem, 2vw, 1.6rem);
+}
+
+.admin-card__title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 1rem;
+}
+
+/* --- Fieldsets ------------------------------------------------------------ */
+
+.admin-section {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--ink-850);
+  margin-bottom: 1.25rem;
+  overflow: hidden;
+}
+
+.admin-section__head {
+  padding: 1.1rem 1.35rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--ink-800);
+}
+
+.admin-section__title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--white);
+}
+
+.admin-section__hint {
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  color: var(--text-mute);
+}
+
+.admin-section__body {
+  padding: 1.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+/* --- Form grid ------------------------------------------------------------ */
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.1rem;
+}
+
+.admin-grid--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.admin-grid--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.admin-span-all {
+  grid-column: 1 / -1;
+}
+
+/* Arabic inputs are forced RTL regardless of the interface language, because
+   the admin edits both languages side by side in the same form. */
+.admin-ar input,
+.admin-ar textarea,
+input.admin-ar,
+textarea.admin-ar {
+  direction: rtl;
+  text-align: right;
+  font-family: 'IBM Plex Sans Arabic', var(--font-body);
+}
+
+.admin-en input,
+.admin-en textarea,
+input.admin-en,
+textarea.admin-en {
+  direction: ltr;
+  text-align: left;
+}
+
+/* --- Tables --------------------------------------------------------------- */
+
+.admin-table-wrap {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--ink-850);
+}
+
+.admin-table-scroll {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  min-width: 680px;
+
+  th {
+    padding: 0.85rem 1rem;
+    text-align: start;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-mute);
+    background: var(--ink-800);
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--line);
+    vertical-align: middle;
+  }
+
+  tbody tr {
+    transition: background var(--dur-fast) var(--ease);
+
+    &:hover {
+      background: var(--ink-800);
+    }
+
+    &:last-child td {
+      border-bottom: 0;
+    }
+  }
+}
+
+[dir='rtl'] .admin-table th {
+  font-family: var(--font-body);
+  letter-spacing: 0;
+  font-size: 0.75rem;
+}
+
+.admin-table__actions {
+  display: flex;
+  gap: 0.35rem;
+  justify-content: flex-end;
+}
+
+/* --- Icon buttons --------------------------------------------------------- */
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text-soft);
+  transition:
+    color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    background var(--dur-fast) var(--ease);
+
+  &:hover {
+    color: var(--white);
+    border-color: var(--blue);
+    background: rgba(0, 123, 255, 0.12);
+  }
+
+  &.is-danger:hover {
+    color: var(--danger);
+    border-color: var(--danger);
+    background: rgba(255, 92, 108, 0.12);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+}
+
+/* --- Pills ---------------------------------------------------------------- */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 100px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  border: 1px solid currentColor;
+  white-space: nowrap;
+}
+
+.pill--on {
+  color: var(--status-available);
+  background: var(--status-available-bg);
+}
+
+.pill--off {
+  color: var(--text-mute);
+  background: rgba(139, 149, 167, 0.1);
+}
+
+.pill--info {
+  color: var(--status-stock);
+  background: var(--status-stock-bg);
+}
+
+.pill--warn {
+  color: var(--warn);
+  background: rgba(255, 181, 69, 0.12);
+}
+
+/* --- Switch --------------------------------------------------------------- */
+
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  cursor: pointer;
+  user-select: none;
+
+  input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+}
+
+.switch__track {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  border-radius: 100px;
+  background: var(--ink-600);
+  border: 1px solid var(--line-strong);
+  transition: background var(--dur-fast) var(--ease);
+  flex-shrink: 0;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    inset-inline-start: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--text-soft);
+    transition:
+      transform var(--dur-fast) var(--ease),
+      background var(--dur-fast) var(--ease);
+  }
+}
+
+.switch input:checked + .switch__track {
+  background: var(--blue);
+  border-color: var(--blue);
+
+  &::after {
+    background: var(--white);
+    transform: translateX(calc(18px * var(--flip)));
+  }
+}
+
+.switch input:focus-visible + .switch__track {
+  outline: 2px solid var(--blue-bright);
+  outline-offset: 2px;
+}
+
+.switch__label {
+  font-size: 0.875rem;
+  color: var(--text-soft);
+}
+
+/* --- Empty / loading states ----------------------------------------------- */
+
+.admin-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: clamp(2.5rem, 6vw, 4.5rem) 1.5rem;
+  text-align: center;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--ink-850);
+}
+
+.admin-empty__title {
+  font-size: 1.0625rem;
+  color: var(--white);
+}
+
+.admin-empty__body {
+  font-size: 0.875rem;
+  color: var(--text-mute);
+  max-width: 44ch;
+}
+
+.admin-loading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  span {
+    height: 52px;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(100deg, var(--ink-850) 30%, var(--ink-800) 50%, var(--ink-850) 70%);
+    background-size: 220% 100%;
+    animation: admin-sweep 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes admin-sweep {
+  to {
+    background-position: -220% 0;
+  }
+}
+
+/* --- Responsive ----------------------------------------------------------- */
+
+@media (max-width: 720px) {
+  .admin-grid--2,
+  .admin-grid--3 {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

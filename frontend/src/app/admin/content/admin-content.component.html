@@ -1,0 +1,159 @@
+<div class="admin-page">
+  <header class="admin-head">
+    <div>
+      <h1 class="admin-title">{{ i18n.dict().admin.content.title }}</h1>
+      <p class="admin-subtitle">{{ i18n.dict().admin.content.subtitle }}</p>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="admin-loading"><span></span><span></span><span></span></div>
+  } @else if (!blocks().length) {
+    <div class="admin-empty">
+      <p class="admin-empty__title">{{ i18n.dict().common.empty }}</p>
+      <p class="admin-empty__body">{{ i18n.dict().common.errorBody }}</p>
+    </div>
+  } @else {
+    <!-- Group tabs -->
+    <div class="tabs" role="tablist">
+      @for (group of groups(); track group) {
+        <button
+          type="button"
+          class="tab"
+          role="tab"
+          [class.is-active]="activeGroup() === group"
+          [attr.aria-selected]="activeGroup() === group"
+          (click)="activeGroup.set(group)"
+        >
+          {{ groupLabel(group) }}
+        </button>
+      }
+    </div>
+
+    @for (block of visibleBlocks(); track block.key) {
+      <section class="admin-section">
+        <div class="admin-section__head block__head">
+          <div>
+            <h2 class="admin-section__title">{{ block.label }}</h2>
+            <p class="admin-section__hint">{{ block.key }}</p>
+          </div>
+          <button
+            type="button"
+            class="btn btn--primary btn--small"
+            [disabled]="savingKey() === block.key"
+            (click)="save(block)"
+          >
+            {{
+              savingKey() === block.key
+                ? i18n.dict().common.loading
+                : i18n.dict().admin.content.saveSection
+            }}
+          </button>
+        </div>
+
+        <div class="admin-section__body">
+          <!-- Column headers make the two-language layout obvious at a glance. -->
+          <div class="cols" aria-hidden="true">
+            <span></span>
+            <span class="cols__label">{{ i18n.dict().admin.content.english }}</span>
+            <span class="cols__label">{{ i18n.dict().admin.content.arabic }}</span>
+          </div>
+
+          <!-- Flat fields -->
+          @for (field of block.fields; track field.path) {
+            <div class="pair">
+              <label class="pair__label" [attr.for]="block.key + '-' + field.path + '-en'">
+                {{ field.label }}
+              </label>
+
+              @if (field.multiline) {
+                <textarea
+                  class="textarea admin-en"
+                  [id]="block.key + '-' + field.path + '-en'"
+                  [(ngModel)]="field.en"
+                  [ngModelOptions]="{ standalone: true }"
+                ></textarea>
+                <textarea
+                  class="textarea admin-ar"
+                  [(ngModel)]="field.ar"
+                  [ngModelOptions]="{ standalone: true }"
+                ></textarea>
+              } @else {
+                <input
+                  class="input admin-en"
+                  [id]="block.key + '-' + field.path + '-en'"
+                  [(ngModel)]="field.en"
+                  [ngModelOptions]="{ standalone: true }"
+                />
+                <input
+                  class="input admin-ar"
+                  [(ngModel)]="field.ar"
+                  [ngModelOptions]="{ standalone: true }"
+                />
+              }
+            </div>
+          }
+
+          <!-- Repeatable lists -->
+          @for (repeat of block.repeats; track repeat.key) {
+            <div class="repeat">
+              <h3 class="repeat__title">{{ repeat.label }}</h3>
+
+              @for (row of repeat.rows; track row.index; let rowIndex = $index) {
+                <div class="repeat__row">
+                  <div class="repeat__head">
+                    <span class="repeat__num">{{ i18n.formatNumber(rowIndex + 1) }}</span>
+                    <button
+                      type="button"
+                      class="icon-btn is-danger"
+                      (click)="removeRow(block, repeat, rowIndex)"
+                      [attr.aria-label]="i18n.dict().admin.content.removeItem"
+                    >
+                      <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M4 8h8" stroke-linecap="round" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  @for (field of row.fields; track field.path) {
+                    <div class="pair">
+                      <label class="pair__label">{{ field.label }}</label>
+
+                      @if (field.multiline) {
+                        <textarea
+                          class="textarea admin-en"
+                          [(ngModel)]="field.en"
+                          [ngModelOptions]="{ standalone: true }"
+                        ></textarea>
+                        <textarea
+                          class="textarea admin-ar"
+                          [(ngModel)]="field.ar"
+                          [ngModelOptions]="{ standalone: true }"
+                        ></textarea>
+                      } @else {
+                        <input
+                          class="input admin-en"
+                          [(ngModel)]="field.en"
+                          [ngModelOptions]="{ standalone: true }"
+                        />
+                        <input
+                          class="input admin-ar"
+                          [(ngModel)]="field.ar"
+                          [ngModelOptions]="{ standalone: true }"
+                        />
+                      }
+                    </div>
+                  }
+                </div>
+              }
+
+              <button type="button" class="btn btn--ghost btn--small" (click)="addRow(block, repeat)">
+                + {{ i18n.dict().admin.content.addItem }}
+              </button>
+            </div>
+          }
+        </div>
+      </section>
+    }
+  }
+</div>

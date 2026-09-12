@@ -1,0 +1,123 @@
+.toolbar {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 1.1rem;
+  flex-wrap: wrap;
+}
+
+.toolbar__search {
+  flex: 1 1 260px;
+}
+
+.toolbar__select {
+  flex: 0 1 200px;
+}
+
+.col-img {
+  width: 60px;
+}
+
+.thumb {
+  display: block;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+
+.name {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  max-width: 34ch;
+
+  strong {
+    font-weight: 600;
+    color: var(--text);
+    transition: color var(--dur-fast) var(--ease);
+  }
+
+  &:hover strong {
+    color: var(--blue-bright);
+  }
+}
+
+.name__slug {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--text-mute);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.name__flags {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+}
+
+.name__images {
+  font-size: 0.6875rem;
+  color: var(--text-mute);
+}
+
+/* Status doubles as the control that changes it — one click, three states. */
+.status-btn {
+  padding: 0.28rem 0.65rem;
+  border-radius: 100px;
+  border: 1px solid currentColor;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: filter var(--dur-fast) var(--ease);
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.25);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+
+  &[data-status='AVAILABLE'] {
+    color: var(--status-available);
+    background: var(--status-available-bg);
+  }
+
+  &[data-status='IN_STOCK'] {
+    color: var(--status-stock);
+    background: var(--status-stock-bg);
+  }
+
+  &[data-status='SOLD'] {
+    color: var(--status-sold);
+    background: var(--status-sold-bg);
+  }
+}
+
+.views {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--text-mute);
+}
+
+tr.is-busy {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.pager__label {
+  font-size: 0.8125rem;
+  color: var(--text-mute);
+}

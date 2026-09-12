@@ -405,6 +405,6 @@ export const en = {
       expired: 'Your session has expired. Please sign in again.',
     },
   },
-} as const;
+};
 
 export type TranslationShape = typeof en;

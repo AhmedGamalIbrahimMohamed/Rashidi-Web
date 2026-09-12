@@ -1,0 +1,161 @@
+.tabs {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+  overflow-x: auto;
+  padding-bottom: 0.35rem;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.tab {
+  flex-shrink: 0;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  background: var(--ink-850);
+  color: var(--text-mute);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    background var(--dur-fast) var(--ease);
+
+  &:hover {
+    color: var(--text);
+  }
+
+  &.is-active {
+    color: var(--white);
+    background: rgba(0, 123, 255, 0.16);
+    border-color: var(--blue);
+  }
+}
+
+.block__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* --- Two-language grid ----------------------------------------------------- */
+
+.cols,
+.pair {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.cols {
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 0.35rem;
+}
+
+.cols__label {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+
+/* The second column header is the word "العربية" even when the dashboard is in
+   English, so it must not inherit the mono face or the Latin tracking — both
+   break Arabic letterforms. */
+.cols__label:last-child {
+  font-family: 'IBM Plex Sans Arabic', var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.pair__label {
+  padding-top: 0.65rem;
+  font-size: 0.8125rem;
+  color: var(--text-soft);
+  word-break: break-word;
+}
+
+.pair .textarea {
+  min-height: 92px;
+}
+
+/* --- Repeatable groups ----------------------------------------------------- */
+
+.repeat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+  border-top: 1px dashed var(--line-strong);
+}
+
+.repeat__title {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blue-bright);
+}
+
+[dir='rtl'] .repeat__title,
+[dir='rtl'] .cols__label {
+  font-family: var(--font-body);
+  letter-spacing: 0;
+  font-size: 0.8125rem;
+}
+
+.repeat__row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.9rem;
+  background: var(--ink-900);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.repeat__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.repeat__num {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-mute);
+}
+
+/* --- Responsive ------------------------------------------------------------ */
+
+@media (max-width: 900px) {
+  .cols {
+    display: none;
+  }
+
+  .pair {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+    padding-bottom: 0.9rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .pair__label {
+    padding-top: 0;
+    font-weight: 500;
+    color: var(--white);
+  }
+}

@@ -1,0 +1,123 @@
+<div class="admin shell-layout" [class.is-drawer-open]="drawerOpen()">
+  <!-- ======================= Sidebar ======================= -->
+  <aside class="side">
+    <a class="side__brand" routerLink="/admin">
+      <app-logo variant="mark" [withWordmark]="false" />
+      <span class="side__brand-text">
+        <strong>{{ i18n.dict().brand.name }}</strong>
+        <small>{{ i18n.dict().admin.title }}</small>
+      </span>
+    </a>
+
+    <nav class="side__nav" [attr.aria-label]="i18n.dict().admin.title">
+      @for (item of nav(); track item.path) {
+        <a
+          class="side__link"
+          [routerLink]="item.path"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: item.exact }"
+          (click)="closeDrawer()"
+        >
+          <span class="side__icon" aria-hidden="true">
+            <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5">
+              @switch (item.icon) {
+                @case ('grid') {
+                  <rect x="2.5" y="2.5" width="6" height="6" rx="1" />
+                  <rect x="11.5" y="2.5" width="6" height="6" rx="1" />
+                  <rect x="2.5" y="11.5" width="6" height="6" rx="1" />
+                  <rect x="11.5" y="11.5" width="6" height="6" rx="1" />
+                }
+                @case ('box') {
+                  <path d="M10 2.5 17 6v8l-7 3.5L3 14V6z" stroke-linejoin="round" />
+                  <path d="M3 6l7 3.5L17 6M10 9.5v8" />
+                }
+                @case ('layers') {
+                  <path d="m10 2.5 7.5 4-7.5 4-7.5-4z" stroke-linejoin="round" />
+                  <path d="m2.5 10.5 7.5 4 7.5-4" stroke-linejoin="round" />
+                }
+                @case ('text') {
+                  <path d="M3.5 4.5h13M3.5 9h13M3.5 13.5h8" stroke-linecap="round" />
+                }
+                @case ('mail') {
+                  <rect x="2.5" y="4.5" width="15" height="11" rx="1.5" />
+                  <path d="m3 6 7 5 7-5" />
+                }
+                @case ('user') {
+                  <circle cx="10" cy="7" r="3.2" />
+                  <path d="M3.8 17a6.4 6.4 0 0 1 12.4 0" stroke-linecap="round" />
+                }
+              }
+            </svg>
+          </span>
+          <span class="side__label">{{ item.label }}</span>
+          @if (item.badge) {
+            <span class="side__badge">{{ i18n.formatNumber(item.badge) }}</span>
+          }
+        </a>
+      }
+    </nav>
+
+    <div class="side__foot">
+      <a class="side__site" routerLink="/" (click)="closeDrawer()">
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+          <circle cx="8" cy="8" r="6" />
+          <path d="M2 8h12M8 2a9 9 0 0 1 0 12A9 9 0 0 1 8 2Z" />
+        </svg>
+        {{ i18n.dict().admin.backToSite }}
+      </a>
+    </div>
+  </aside>
+
+  <!-- ======================= Main ======================= -->
+  <div class="body">
+    <header class="topbar">
+      <button
+        type="button"
+        class="topbar__burger"
+        (click)="toggleDrawer()"
+        [attr.aria-expanded]="drawerOpen()"
+        [attr.aria-label]="drawerOpen() ? i18n.dict().nav.close : i18n.dict().nav.open"
+      >
+        <span></span><span></span><span></span>
+      </button>
+
+      <div class="topbar__spacer"></div>
+
+      <button
+        type="button"
+        class="topbar__lang"
+        (click)="i18n.toggle()"
+        [attr.aria-label]="i18n.dict().nav.switchTo"
+      >
+        {{ i18n.alternate().short }}
+      </button>
+
+      <div class="topbar__user">
+        <span class="topbar__avatar" aria-hidden="true">{{ initials() }}</span>
+        <span class="topbar__meta">
+          <strong>{{ auth.user()?.name }}</strong>
+          <small>{{ auth.user()?.role }}</small>
+        </span>
+      </div>
+
+      <button type="button" class="topbar__out" (click)="signOut()">
+        {{ i18n.dict().admin.signOut }}
+      </button>
+    </header>
+
+    <main class="content">
+      <router-outlet />
+    </main>
+  </div>
+
+  <!-- Drawer backdrop (mobile only) -->
+  <button
+    type="button"
+    class="scrim"
+    (click)="closeDrawer()"
+    tabindex="-1"
+    aria-hidden="true"
+  ></button>
+</div>
+
+<app-toasts />

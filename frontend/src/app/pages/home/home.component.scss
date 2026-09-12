@@ -1,0 +1,437 @@
+/* ==========================================================================
+   HERO
+   ========================================================================== */
+
+.hero {
+  position: relative;
+  /* Cancels the shell's header offset so the hero runs under the fixed bar. */
+  margin-top: calc(-1 * var(--header-h));
+  padding-top: var(--header-h);
+  min-height: min(100svh, 900px);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 70% 60% at 78% 45%, rgba(0, 123, 255, 0.12), transparent 70%),
+    linear-gradient(to bottom, var(--ink-1000), var(--ink-900) 60%, var(--ink-1000));
+}
+
+.hero__aura {
+  position: absolute;
+  inset-inline-end: -10%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: min(62vw, 740px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 123, 255, 0.16), transparent 62%);
+  filter: blur(70px);
+  pointer-events: none;
+}
+
+.hero__inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  align-items: center;
+  gap: clamp(2rem, 5vw, 5rem);
+  width: 100%;
+  padding-block: clamp(3rem, 8vh, 6rem);
+}
+
+.hero__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.5rem;
+  max-width: 40rem;
+}
+
+/* --- Headline ------------------------------------------------------------- */
+
+.hero__title {
+  font-size: var(--fs-display);
+  line-height: 0.98;
+  margin: 0;
+  /* Characters animate on the Y axis; a little perspective makes the rotateX
+     in the entrance read as depth rather than a squash. */
+  perspective: 800px;
+}
+
+[dir='rtl'] .hero__title {
+  line-height: 1.22;
+}
+
+.hero__line {
+  display: block;
+  overflow: hidden;
+  padding-block: 0.06em;
+}
+
+.hero__char {
+  display: inline-block;
+  white-space: pre;
+  transform-origin: 50% 100%;
+}
+
+/* A whole line animated as one piece — used for line two always, and for line
+   one in Arabic where per-character splitting would break letter joining. */
+.hero__block {
+  display: block;
+}
+
+.hero__accent {
+  background: linear-gradient(100deg, var(--white) 0%, var(--blue-soft) 45%, var(--blue) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero__lead {
+  color: var(--text-soft);
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin-top: 0.35rem;
+}
+
+/* --- Visual --------------------------------------------------------------- */
+
+.hero__visual {
+  position: relative;
+  aspect-ratio: 1;
+  width: 100%;
+  max-width: 640px;
+  margin-inline-start: auto;
+}
+
+/* Holds the space and the ambient glow while the 3D chunk loads, so the scene
+   fades in rather than popping into an empty box. */
+.hero__visual-ph {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(0, 123, 255, 0.18),
+    transparent 62%
+  );
+  filter: blur(30px);
+}
+
+/* --- Scroll hint ---------------------------------------------------------- */
+
+.hero__scroll {
+  position: absolute;
+  bottom: 1.75rem;
+  inset-inline-start: var(--gutter);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+
+[dir='rtl'] .hero__scroll {
+  font-family: var(--font-body);
+  letter-spacing: 0.04em;
+}
+
+.hero__scroll-line {
+  position: relative;
+  width: 54px;
+  height: 1px;
+  background: var(--line-strong);
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 40%;
+    background: var(--blue);
+    animation: scroll-sweep 2.6s var(--ease-in-out) infinite;
+  }
+}
+
+@keyframes scroll-sweep {
+  0% {
+    transform: translateX(calc(-100% * var(--flip)));
+  }
+  100% {
+    transform: translateX(calc(250% * var(--flip)));
+  }
+}
+
+/* ==========================================================================
+   KEY FIGURES
+   ========================================================================== */
+
+.stats {
+  border-block: 1px solid var(--line);
+  background: linear-gradient(to bottom, var(--ink-900), var(--ink-850));
+}
+
+.stats__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding-block: clamp(2rem, 4vw, 3rem);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding-inline: clamp(0.75rem, 2vw, 2rem);
+  border-inline-start: 1px solid var(--line);
+
+  &:first-child {
+    border-inline-start: 0;
+    padding-inline-start: 0;
+  }
+}
+
+.stat__value {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 3.6vw, 3rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  background: linear-gradient(160deg, var(--white), var(--blue-soft));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+[dir='rtl'] .stat__value {
+  letter-spacing: 0;
+}
+
+.stat__label {
+  font-size: 0.8125rem;
+  color: var(--text-mute);
+  line-height: 1.4;
+}
+
+/* ==========================================================================
+   CAPABILITIES
+   ========================================================================== */
+
+.capabilities__head {
+  max-width: 46rem;
+  margin-bottom: clamp(2.5rem, 5vw, 4rem);
+}
+
+.capabilities__title {
+  font-size: var(--fs-h2);
+  margin-bottom: 1rem;
+}
+
+.capabilities__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.capability {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  background: var(--ink-850);
+  transition: background var(--dur) var(--ease);
+
+  &:hover {
+    background: var(--ink-800);
+  }
+
+  &:hover .ticks::before,
+  &:hover .ticks::after {
+    opacity: 0.7;
+  }
+}
+
+.capability__index {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  color: var(--blue);
+}
+
+.capability__title {
+  font-size: 1.0625rem;
+  line-height: 1.35;
+  color: var(--white);
+}
+
+.capability__body {
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--text-mute);
+}
+
+/* ==========================================================================
+   MACHINERY
+   ========================================================================== */
+
+.section.machinery {
+  background: linear-gradient(to bottom, var(--ink-1000), var(--ink-900));
+  /* Follows another full-height section, so a full `--section-y` on both sides
+     of the seam reads as a hole rather than as breathing room. */
+  padding-top: calc(var(--section-y) * 0.55);
+}
+
+.machinery__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: clamp(2rem, 4vw, 3rem);
+}
+
+.machinery__title {
+  font-size: var(--fs-h2);
+  margin-block: 0.85rem 0.75rem;
+}
+
+.machinery__lead {
+  max-width: 46ch;
+}
+
+.machinery__all {
+  flex-shrink: 0;
+}
+
+.machinery__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: clamp(1rem, 2vw, 1.75rem);
+}
+
+.skeleton {
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: linear-gradient(100deg, var(--ink-850) 30%, var(--ink-800) 50%, var(--ink-850) 70%);
+  background-size: 220% 100%;
+  animation: skeleton-sweep 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-sweep {
+  to {
+    background-position: -220% 0;
+  }
+}
+
+/* ==========================================================================
+   CLOSING CTA
+   ========================================================================== */
+
+.cta {
+  position: relative;
+  overflow: hidden;
+  padding-block: clamp(4rem, 9vw, 7rem);
+  background:
+    radial-gradient(ellipse 60% 80% at 50% 100%, rgba(0, 123, 255, 0.16), transparent 70%),
+    var(--ink-1000);
+  border-top: 1px solid var(--line);
+}
+
+.cta__inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  text-align: center;
+}
+
+.cta__title {
+  font-size: var(--fs-h2);
+  max-width: 20ch;
+}
+
+.cta__body {
+  max-width: 56ch;
+  color: var(--text-soft);
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .hero__inner {
+    grid-template-columns: 1fr;
+    text-align: start;
+  }
+
+  /* On tablet the 3D sits behind the copy rather than beside it, so the
+     headline keeps its size instead of being squeezed into a narrow column. */
+  .hero__visual {
+    position: absolute;
+    inset: 0;
+    max-width: none;
+    margin: 0;
+    opacity: 0.32;
+    pointer-events: none;
+  }
+
+  .hero__copy {
+    position: relative;
+    z-index: 1;
+    max-width: 34rem;
+  }
+
+  .stats__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.75rem 0;
+  }
+
+  .stat:nth-child(odd) {
+    border-inline-start: 0;
+    padding-inline-start: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero {
+    min-height: auto;
+    padding-bottom: 4rem;
+  }
+
+  .hero__scroll {
+    display: none;
+  }
+
+  .machinery__head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+  }
+
+  .machinery__all {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero__actions {
+    width: 100%;
+
+    .btn {
+      flex: 1 1 100%;
+    }
+  }
+}

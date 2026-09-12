@@ -161,10 +161,6 @@ export const imageReorderSchema = z.object({
   order: z.array(z.string().min(1)).min(1, 'Provide the image ids in their new order'),
 });
 
-export const documentMetaSchema = z.object({
-  titleEn: optionalText(180, 'Document title (EN)'),
-  titleAr: optionalText(180, 'Document title (AR)'),
-});
 
 // ---------------------------------------------------------------------------
 // Contact
@@ -178,8 +174,12 @@ export const contactSchema = z.object({
   message: requiredText(4000, 'Message').pipe(z.string().min(10, 'Message is too short')),
   machineId: optionalText(60, 'Machine'),
   locale: z.enum(['en', 'ar']).default('en'),
-  // Honeypot: real visitors never fill this hidden field.
-  website: z.string().max(0, 'Rejected').optional().or(z.literal('')),
+  /**
+   * Honeypot. Accepted rather than rejected here on purpose: the controller
+   * answers a filled-in trap with a normal success response and simply drops
+   * the message, so a bot learns nothing about why it failed.
+   */
+  website: z.string().max(200).optional(),
 });
 
 export const contactQuerySchema = z.object({

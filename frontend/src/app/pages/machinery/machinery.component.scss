@@ -1,0 +1,276 @@
+/* --- Page head ------------------------------------------------------------ */
+
+.head {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 60% 100% at 50% 0%, rgba(0, 123, 255, 0.12), transparent 70%),
+    var(--ink-1000);
+  border-bottom: 1px solid var(--line);
+}
+
+/* No max-width here: this element is the `.shell`, and narrowing it would pull
+   the heading off the page grid that the cards below sit on. The measure is
+   constrained on the text itself instead. */
+.head__inner {
+  position: relative;
+  padding-block: clamp(3rem, 7vw, 5.5rem) clamp(2rem, 4vw, 3rem);
+}
+
+.head__title {
+  font-size: var(--fs-h1);
+  margin-block: 0.85rem 1rem;
+  max-width: 16ch;
+}
+
+.head__inner .lead {
+  max-width: 52ch;
+}
+
+/* --- Filters -------------------------------------------------------------- */
+
+.filters {
+  position: sticky;
+  top: 64px;
+  z-index: 20;
+  padding-block: 1.1rem;
+  background: rgba(7, 10, 16, 0.9);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border-bottom: 1px solid var(--line);
+}
+
+.chips {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.85rem;
+  /* Horizontal scroll on narrow screens without a visible bar. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+  padding: 0.5rem 0.95rem;
+  background: var(--ink-800);
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  color: var(--text-soft);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    background var(--dur-fast) var(--ease);
+
+  &:hover {
+    color: var(--white);
+    border-color: var(--line-strong);
+  }
+
+  &.is-active {
+    color: var(--white);
+    background: rgba(0, 123, 255, 0.16);
+    border-color: var(--blue);
+  }
+}
+
+.chip__count {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--text-mute);
+}
+
+.chip.is-active .chip__count {
+  color: var(--blue-soft);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.controls__search {
+  position: relative;
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.controls__icon {
+  position: absolute;
+  inset-inline-start: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-mute);
+  pointer-events: none;
+}
+
+.controls__input {
+  padding-inline-start: 2.5rem;
+
+  /* Removes the browser's native clear affordance, which does not match. */
+  &::-webkit-search-cancel-button {
+    appearance: none;
+  }
+}
+
+.controls__select {
+  flex: 0 1 190px;
+  min-width: 140px;
+}
+
+.filters__count {
+  margin-top: 0.85rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+
+[dir='rtl'] .filters__count {
+  font-family: var(--font-body);
+  letter-spacing: 0;
+}
+
+/* --- Results -------------------------------------------------------------- */
+
+.results {
+  padding-block: clamp(2rem, 5vw, 3.5rem) var(--section-y);
+  background: linear-gradient(to bottom, var(--ink-1000), var(--ink-900));
+  min-height: 60vh;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: clamp(1rem, 2vw, 1.75rem);
+}
+
+.skeleton {
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: linear-gradient(100deg, var(--ink-850) 30%, var(--ink-800) 50%, var(--ink-850) 70%);
+  background-size: 220% 100%;
+  animation: sweep 1.5s ease-in-out infinite;
+}
+
+@keyframes sweep {
+  to {
+    background-position: -220% 0;
+  }
+}
+
+/* --- Empty / error states -------------------------------------------------- */
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding-block: clamp(3rem, 8vw, 6rem);
+  text-align: center;
+}
+
+.state__mark {
+  color: var(--ink-400);
+  margin-bottom: 0.5rem;
+}
+
+.state__title {
+  font-size: var(--fs-h3);
+}
+
+.state__body {
+  max-width: 44ch;
+  color: var(--text-mute);
+}
+
+/* --- Pagination ----------------------------------------------------------- */
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: clamp(2.5rem, 5vw, 4rem);
+  flex-wrap: wrap;
+}
+
+.pager__pages {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.pager__step,
+.pager__num {
+  min-width: 40px;
+  height: 40px;
+  padding-inline: 0.85rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text-soft);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition:
+    color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    background var(--dur-fast) var(--ease);
+
+  &:hover:not(:disabled) {
+    color: var(--white);
+    border-color: var(--blue);
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
+
+.pager__num {
+  padding-inline: 0;
+
+  &.is-active {
+    color: var(--white);
+    background: var(--blue);
+    border-color: var(--blue);
+  }
+}
+
+/* --- Responsive ----------------------------------------------------------- */
+
+@media (max-width: 760px) {
+  .filters {
+    /* The header shrinks to 64px only after scroll; on mobile it is always
+       compact, so the sticky offset matches. */
+    top: 64px;
+  }
+
+  .controls__select {
+    flex: 1 1 calc(50% - 0.3rem);
+  }
+}
+
+@media (max-width: 420px) {
+  .controls__select {
+    flex: 1 1 100%;
+  }
+
+  .pager__step {
+    flex: 1 1 100%;
+  }
+}

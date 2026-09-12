@@ -1,0 +1,181 @@
+<div class="admin-page">
+  <header class="admin-head">
+    <div>
+      <h1 class="admin-title">{{ i18n.dict().admin.messages.title }}</h1>
+      <p class="admin-subtitle">
+        {{ i18n.formatNumber(total()) }} {{ i18n.dict().common.results }}
+      </p>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <input
+      class="input toolbar__search"
+      type="search"
+      [value]="search"
+      (input)="onSearch($any($event.target).value)"
+      [placeholder]="i18n.dict().admin.messages.searchPlaceholder"
+      [attr.aria-label]="i18n.dict().common.search"
+    />
+
+    <select
+      class="select toolbar__select"
+      [value]="statusFilter()"
+      (change)="onStatusFilter($any($event.target).value)"
+      [attr.aria-label]="i18n.dict().admin.messages.allStatuses"
+    >
+      <option value="">{{ i18n.dict().admin.messages.allStatuses }}</option>
+      @for (status of statuses; track status) {
+        <option [value]="status">{{ statusLabel(status) }}</option>
+      }
+    </select>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-loading"><span></span><span></span><span></span><span></span></div>
+  } @else if (!items().length) {
+    <div class="admin-empty">
+      <p class="admin-empty__title">{{ i18n.dict().admin.messages.empty }}</p>
+      <p class="admin-empty__body">{{ i18n.dict().admin.messages.emptyBody }}</p>
+    </div>
+  } @else {
+    <div class="inbox">
+      <!-- List -->
+      <ul class="inbox__list">
+        @for (message of items(); track message.id) {
+          <li>
+            <button
+              type="button"
+              class="msg"
+              [class.is-selected]="selected()?.id === message.id"
+              [class.is-new]="message.status === 'NEW'"
+              (click)="open(message)"
+            >
+              <span class="msg__top">
+                <strong class="msg__name">{{ message.name }}</strong>
+                <time class="msg__time">{{ i18n.formatDate(message.createdAt) }}</time>
+              </span>
+              <span class="msg__subject">{{ message.subject }}</span>
+              <span class="msg__foot">
+                <span class="pill" [class]="'pill--' + (message.status === 'NEW' ? 'info' : 'off')">
+                  {{ statusLabel(message.status) }}
+                </span>
+                @if (message.machine) {
+                  <span class="msg__machine">{{ i18n.localize(message.machine, 'name') }}</span>
+                }
+              </span>
+            </button>
+          </li>
+        }
+      </ul>
+
+      <!-- Reading pane -->
+      <div class="inbox__pane">
+        @if (selected(); as message) {
+          <article class="detail">
+            <header class="detail__head">
+              <div>
+                <h2 class="detail__subject">{{ message.subject }}</h2>
+                <p class="detail__meta">
+                  {{ message.name }} ·
+                  <a [href]="'mailto:' + message.email">{{ message.email }}</a>
+                  @if (message.phone) {
+                    · <a [href]="'tel:' + message.phone">{{ message.phone }}</a>
+                  }
+                </p>
+                <p class="detail__meta muted">
+                  {{ i18n.dict().admin.messages.received }}:
+                  {{ i18n.formatDate(message.createdAt, { hour: '2-digit', minute: '2-digit' }) }}
+                  · {{ message.locale === 'ar' ? 'العربية' : 'English' }}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                class="icon-btn is-danger"
+                (click)="pendingDelete.set(message)"
+                [attr.aria-label]="i18n.dict().common.delete"
+              >
+                <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.5h5.8l.6-8.5" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
+            </header>
+
+            @if (message.machine) {
+              <a class="detail__machine" [routerLink]="['/machines', message.machine.slug]" target="_blank">
+                <span class="detail__machine-label">{{ i18n.dict().admin.messages.about }}</span>
+                <strong>{{ i18n.localize(message.machine, 'name') }}</strong>
+              </a>
+            } @else {
+              <p class="detail__machine detail__machine--none">
+                {{ i18n.dict().admin.messages.noMachine }}
+              </p>
+            }
+
+            <div class="detail__body" [attr.dir]="message.locale === 'ar' ? 'rtl' : 'ltr'">
+              {{ message.message }}
+            </div>
+
+            <footer class="detail__foot">
+              <a class="btn btn--primary btn--small" [href]="replyHref(message)">
+                {{ i18n.dict().admin.messages.reply }}
+              </a>
+
+              <div class="detail__status">
+                <span class="detail__status-label">{{ i18n.dict().admin.messages.markAs }}</span>
+                @for (status of statuses; track status) {
+                  <button
+                    type="button"
+                    class="statusbtn"
+                    [class.is-active]="message.status === status"
+                    (click)="setStatus(message, status)"
+                  >
+                    {{ statusLabel(status) }}
+                  </button>
+                }
+              </div>
+            </footer>
+          </article>
+        } @else {
+          <div class="placeholder">
+            <svg viewBox="0 0 40 40" width="42" height="42" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true">
+              <rect x="5" y="10" width="30" height="22" rx="2" />
+              <path d="m6 12 14 10 14-10" />
+            </svg>
+            <p>{{ i18n.dict().admin.messages.title }}</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    @if (totalPages() > 1) {
+      <div class="pager">
+        <button type="button" class="btn btn--ghost btn--small" [disabled]="page() === 1" (click)="changePage(-1)">
+          {{ i18n.dict().common.previous }}
+        </button>
+        <span class="pager__label">
+          {{ i18n.dict().common.page }} {{ i18n.formatNumber(page()) }}
+          {{ i18n.dict().common.of }} {{ i18n.formatNumber(totalPages()) }}
+        </span>
+        <button
+          type="button"
+          class="btn btn--ghost btn--small"
+          [disabled]="page() === totalPages()"
+          (click)="changePage(1)"
+        >
+          {{ i18n.dict().common.next }}
+        </button>
+      </div>
+    }
+  }
+</div>
+
+@if (pendingDelete()) {
+  <app-confirm-dialog
+    [title]="i18n.dict().admin.messages.confirmDelete"
+    [busy]="deleting()"
+    (confirmed)="confirmDelete()"
+    (cancelled)="pendingDelete.set(null)"
+  />
+}

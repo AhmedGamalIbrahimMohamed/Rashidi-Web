@@ -1,0 +1,356 @@
+/* --- About intro ---------------------------------------------------------- */
+
+.intro {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 70% 100% at 30% 0%, rgba(0, 123, 255, 0.13), transparent 65%),
+    var(--ink-1000);
+  border-bottom: 1px solid var(--line);
+}
+
+/* This element is the `.shell`; constraining it would pull the heading off the
+   page grid that the sections below align to. Measure is set on the text. */
+.intro__inner {
+  position: relative;
+  padding-block: clamp(3.5rem, 8vw, 6rem) clamp(2.5rem, 5vw, 4rem);
+}
+
+.intro__title {
+  font-size: var(--fs-h1);
+  margin-block: 0.9rem 1.1rem;
+  max-width: 22ch;
+}
+
+.intro__lead {
+  font-size: clamp(1.0625rem, 1.7vw, 1.375rem);
+  color: var(--text-soft);
+  max-width: 56ch;
+}
+
+/* --- Story ---------------------------------------------------------------- */
+
+.story {
+  background: linear-gradient(to bottom, var(--ink-1000), var(--ink-900));
+}
+
+.story__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: start;
+}
+
+.story__text {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  color: var(--text-soft);
+  line-height: 1.85;
+  max-width: 66ch;
+
+  /* The opening paragraph carries more weight, as a print article would. */
+  p:first-child {
+    font-size: 1.0625rem;
+    color: var(--text);
+  }
+}
+
+.story__values {
+  display: grid;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.value {
+  position: relative;
+  padding: clamp(1.25rem, 2.5vw, 1.75rem);
+  background: var(--ink-850);
+  transition: background var(--dur) var(--ease);
+
+  &:hover {
+    background: var(--ink-800);
+  }
+
+  &:hover .value__bar {
+    transform: scaleY(1);
+  }
+}
+
+.value__bar {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 2px;
+  background: var(--blue);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform var(--dur) var(--ease);
+}
+
+.value__title {
+  font-size: 1rem;
+  color: var(--white);
+  margin-bottom: 0.4rem;
+}
+
+.value__body {
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--text-mute);
+}
+
+/* --- Contact -------------------------------------------------------------- */
+
+.section.contact {
+  background: var(--ink-1000);
+  border-top: 1px solid var(--line);
+  /* Offsets the fixed header when arriving via #contact. */
+  scroll-margin-top: var(--header-h);
+  /* Sits directly under another full section; a full `--section-y` on both
+     sides of the seam reads as a gap rather than as rhythm. */
+  padding-top: calc(var(--section-y) * 0.6);
+}
+
+.contact__head {
+  max-width: 48rem;
+  margin-bottom: clamp(2rem, 4vw, 3.25rem);
+}
+
+.contact__title {
+  font-size: var(--fs-h2);
+  margin-block: 0.85rem 1rem;
+}
+
+.contact__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: start;
+}
+
+/* --- Detail rows ---------------------------------------------------------- */
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.detail {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding: 1rem 1.1rem;
+  background: var(--ink-850);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  transition:
+    border-color var(--dur-fast) var(--ease),
+    background var(--dur-fast) var(--ease);
+
+  &:not(.detail--static):hover {
+    border-color: var(--blue);
+    background: var(--ink-800);
+  }
+
+  &:not(.detail--static):hover .detail__icon {
+    color: var(--blue-bright);
+    border-color: var(--blue);
+  }
+}
+
+.detail--static {
+  cursor: default;
+}
+
+.detail__icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text-soft);
+  transition:
+    color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease);
+}
+
+.detail__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.detail__label {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+
+[dir='rtl'] .detail__label {
+  font-family: var(--font-body);
+  letter-spacing: 0;
+  font-size: 0.75rem;
+}
+
+.detail__value {
+  color: var(--white);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.detail__extra {
+  font-size: 0.8125rem;
+  color: var(--text-mute);
+}
+
+.socials {
+  margin-top: 0.6rem;
+  padding: 1rem 1.1rem;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-sm);
+}
+
+.socials__label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  margin-bottom: 0.6rem;
+}
+
+[dir='rtl'] .socials__label {
+  font-family: var(--font-body);
+  letter-spacing: 0;
+  font-size: 0.75rem;
+}
+
+.socials__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.1rem;
+
+  a {
+    font-size: 0.875rem;
+    color: var(--text-soft);
+    transition: color var(--dur-fast) var(--ease);
+
+    &:hover {
+      color: var(--blue-bright);
+    }
+  }
+}
+
+/* --- Form card ------------------------------------------------------------ */
+
+.formcard {
+  position: relative;
+  padding: clamp(1.5rem, 3.5vw, 2.5rem);
+  background: linear-gradient(160deg, var(--ink-800), var(--ink-850));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+
+  .ticks::before,
+  .ticks::after {
+    opacity: 0.5;
+  }
+}
+
+.formcard__title {
+  font-size: var(--fs-h3);
+  margin-bottom: 1.5rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.1rem;
+}
+
+.form__error {
+  padding: 0.75rem 1rem;
+  background: rgba(255, 92, 108, 0.1);
+  border: 1px solid rgba(255, 92, 108, 0.35);
+  border-radius: var(--radius-sm);
+  color: var(--danger);
+  font-size: 0.875rem;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: var(--white);
+  border-radius: 50%;
+  animation: spin 640ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- Success -------------------------------------------------------------- */
+
+.success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  padding-block: clamp(2rem, 5vw, 3.5rem);
+  text-align: center;
+}
+
+.success__mark {
+  color: var(--status-available);
+  margin-bottom: 0.35rem;
+}
+
+.success__title {
+  font-size: var(--fs-h3);
+}
+
+.success__body {
+  max-width: 40ch;
+  color: var(--text-mute);
+}
+
+/* --- Responsive ----------------------------------------------------------- */
+
+@media (max-width: 1024px) {
+  .story__grid,
+  .contact__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .form__row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 1.6s;
+  }
+}

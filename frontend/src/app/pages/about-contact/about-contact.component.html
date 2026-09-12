@@ -1,0 +1,342 @@
+<!-- ==========================================================================
+     ABOUT
+     ========================================================================== -->
+<section class="intro">
+  <div class="grid-bg" aria-hidden="true"></div>
+
+  <div class="shell intro__inner">
+    @if (about(); as copy) {
+      <p class="eyebrow">{{ copy.eyebrow }}</p>
+      <h1 class="intro__title">{{ copy.title }}</h1>
+      @if (copy.lead) {
+        <p class="lead intro__lead">{{ copy.lead }}</p>
+      }
+    } @else {
+      <h1 class="intro__title">{{ i18n.dict().nav.about }}</h1>
+    }
+  </div>
+</section>
+
+@if (about(); as copy) {
+  <section class="section story">
+    <div class="shell story__grid">
+      <div class="story__text" appReveal>
+        @for (paragraph of copy.paragraphs ?? []; track $index) {
+          <p>{{ paragraph }}</p>
+        }
+      </div>
+
+      @if (copy.values?.length) {
+        <div class="story__values" appReveal revealChildren=".value" [revealStagger]="0.09">
+          @for (item of copy.values ?? []; track $index) {
+            <article class="value">
+              <span class="value__bar" aria-hidden="true"></span>
+              <h2 class="value__title">{{ item.title }}</h2>
+              <p class="value__body">{{ item.body }}</p>
+            </article>
+          }
+        </div>
+      }
+    </div>
+  </section>
+}
+
+<!-- ==========================================================================
+     CONTACT
+     ========================================================================== -->
+<section class="section contact" id="contact">
+  <div class="shell">
+    <header class="contact__head" appReveal>
+      @if (contact(); as details) {
+        <p class="eyebrow">{{ details.eyebrow }}</p>
+        <h2 class="contact__title">{{ details.title }}</h2>
+        @if (details.lead) {
+          <p class="lead">{{ details.lead }}</p>
+        }
+      } @else {
+        <h2 class="contact__title">{{ i18n.dict().nav.contact }}</h2>
+      }
+    </header>
+
+    <div class="contact__grid">
+      <!-- Details -->
+      <aside class="details" appReveal="left">
+        @if (contact(); as details) {
+          @if (details.phone) {
+            <a class="detail" [href]="'tel:' + phoneHref()">
+              <span class="detail__icon" aria-hidden="true">
+                <svg viewBox="0 0 20 20" width="17" height="17">
+                  <path
+                    d="M4.5 3h3l1.5 4-2 1.2a10 10 0 0 0 4.8 4.8L13 11l4 1.5v3a1.5 1.5 0 0 1-1.7 1.5A13.5 13.5 0 0 1 3 4.7 1.5 1.5 0 0 1 4.5 3Z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.4"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
+              <span class="detail__body">
+                <span class="detail__label">{{ i18n.dict().contact.phoneLabel }}</span>
+                <span class="detail__value ltr">{{ details.phone }}</span>
+                @if (details.phoneSecondary) {
+                  <span class="detail__extra ltr">{{ details.phoneSecondary }}</span>
+                }
+              </span>
+            </a>
+          }
+
+          @if (whatsappHref(); as wa) {
+            <a class="detail" [href]="wa" target="_blank" rel="noopener noreferrer">
+              <span class="detail__icon" aria-hidden="true">
+                <svg viewBox="0 0 20 20" width="17" height="17">
+                  <path
+                    d="M10 2.5a7.5 7.5 0 0 0-6.4 11.4L2.5 17.5l3.7-1.1A7.5 7.5 0 1 0 10 2.5Z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.4"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M7.3 7.2c.2-.5.4-.5.6-.5h.5c.2 0 .4 0 .6.5l.6 1.4c.1.2 0 .4-.1.5l-.4.5c-.1.2-.2.3 0 .6a6 6 0 0 0 2.3 2c.3.2.5.1.6 0l.5-.5c.2-.2.3-.2.5-.1l1.3.7c.4.2.4.4.4.6v.5c0 .3-.3.6-.8.7-1 .2-2.6-.3-4-1.5a8 8 0 0 1-2.4-3.2c-.4-1-.4-1.7-.2-2.2Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </span>
+              <span class="detail__body">
+                <span class="detail__label">{{ i18n.dict().contact.whatsappLabel }}</span>
+                <span class="detail__value ltr">{{ details.whatsapp }}</span>
+              </span>
+            </a>
+          }
+
+          @if (details.email) {
+            <a class="detail" [href]="'mailto:' + details.email">
+              <span class="detail__icon" aria-hidden="true">
+                <svg viewBox="0 0 20 20" width="17" height="17">
+                  <rect
+                    x="2.5"
+                    y="4.5"
+                    width="15"
+                    height="11"
+                    rx="1.5"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.4"
+                  />
+                  <path d="m3 6 7 5 7-5" fill="none" stroke="currentColor" stroke-width="1.4" />
+                </svg>
+              </span>
+              <span class="detail__body">
+                <span class="detail__label">{{ i18n.dict().contact.emailLabel }}</span>
+                <span class="detail__value">{{ details.email }}</span>
+                @if (details.salesEmail && details.salesEmail !== details.email) {
+                  <span class="detail__extra">{{ details.salesEmail }}</span>
+                }
+              </span>
+            </a>
+          }
+
+          @if (details.addressLine1) {
+            <a
+              class="detail"
+              [href]="details.mapUrl || '#'"
+              [attr.target]="details.mapUrl ? '_blank' : null"
+              rel="noopener noreferrer"
+            >
+              <span class="detail__icon" aria-hidden="true">
+                <svg viewBox="0 0 20 20" width="17" height="17">
+                  <path
+                    d="M10 17.5s5.5-5 5.5-9a5.5 5.5 0 1 0-11 0c0 4 5.5 9 5.5 9Z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.4"
+                    stroke-linejoin="round"
+                  />
+                  <circle cx="10" cy="8.3" r="2" fill="none" stroke="currentColor" stroke-width="1.4" />
+                </svg>
+              </span>
+              <span class="detail__body">
+                <span class="detail__label">{{ i18n.dict().contact.locationLabel }}</span>
+                <span class="detail__value">{{ details.addressLine1 }}</span>
+                @if (details.addressLine2) {
+                  <span class="detail__extra">{{ details.addressLine2 }}</span>
+                }
+              </span>
+            </a>
+          }
+
+          @if (details.workingHours) {
+            <div class="detail detail--static">
+              <span class="detail__icon" aria-hidden="true">
+                <svg viewBox="0 0 20 20" width="17" height="17">
+                  <circle cx="10" cy="10" r="7.2" fill="none" stroke="currentColor" stroke-width="1.4" />
+                  <path d="M10 5.8V10l3 1.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+                </svg>
+              </span>
+              <span class="detail__body">
+                <span class="detail__label">{{ i18n.dict().contact.hoursLabel }}</span>
+                <span class="detail__value">{{ details.workingHours }}</span>
+              </span>
+            </div>
+          }
+        }
+
+        @if (social().length) {
+          <div class="socials">
+            <span class="socials__label">{{ i18n.dict().contact.followLabel }}</span>
+            <div class="socials__list">
+              @for (link of social(); track link.url) {
+                <a [href]="link.url" target="_blank" rel="noopener noreferrer">{{ link.platform }}</a>
+              }
+            </div>
+          </div>
+        }
+      </aside>
+
+      <!-- Form -->
+      <div class="formcard" appReveal="right">
+        <span class="ticks" aria-hidden="true"></span>
+
+        @if (sent()) {
+          <div class="success" role="status">
+            <span class="success__mark" aria-hidden="true">
+              <svg viewBox="0 0 32 32" width="30" height="30">
+                <circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="1.5" />
+                <path
+                  d="m10 16.5 4 4 8-8.5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+            <h3 class="success__title">{{ i18n.dict().contact.successTitle }}</h3>
+            <p class="success__body">{{ i18n.dict().contact.successBody }}</p>
+            <button type="button" class="btn btn--ghost" (click)="sendAnother()">
+              {{ i18n.dict().contact.sendAnother }}
+            </button>
+          </div>
+        } @else {
+          <h3 class="formcard__title">{{ i18n.dict().contact.formTitle }}</h3>
+
+          <form class="form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+            <div class="form__row">
+              <div class="field">
+                <label class="label" for="cf-name">
+                  {{ i18n.dict().contact.name }} <span class="req">*</span>
+                </label>
+                <input
+                  id="cf-name"
+                  class="input"
+                  type="text"
+                  formControlName="name"
+                  autocomplete="name"
+                  [class.is-invalid]="invalid('name')"
+                  [placeholder]="i18n.dict().contact.namePlaceholder"
+                  [attr.aria-invalid]="invalid('name')"
+                />
+                @if (invalid('name')) {
+                  <span class="field-error">{{ errorFor('name') }}</span>
+                }
+              </div>
+
+              <div class="field">
+                <label class="label" for="cf-email">
+                  {{ i18n.dict().contact.email }} <span class="req">*</span>
+                </label>
+                <input
+                  id="cf-email"
+                  class="input"
+                  type="email"
+                  formControlName="email"
+                  autocomplete="email"
+                  dir="ltr"
+                  [class.is-invalid]="invalid('email')"
+                  [placeholder]="i18n.dict().contact.emailPlaceholder"
+                  [attr.aria-invalid]="invalid('email')"
+                />
+                @if (invalid('email')) {
+                  <span class="field-error">{{ errorFor('email') }}</span>
+                }
+              </div>
+            </div>
+
+            <div class="form__row">
+              <div class="field">
+                <label class="label" for="cf-phone">
+                  {{ i18n.dict().contact.phone }}
+                  <span class="muted">({{ i18n.dict().common.optional }})</span>
+                </label>
+                <input
+                  id="cf-phone"
+                  class="input"
+                  type="tel"
+                  formControlName="phone"
+                  autocomplete="tel"
+                  dir="ltr"
+                  [placeholder]="i18n.dict().contact.phonePlaceholder"
+                />
+              </div>
+
+              <div class="field">
+                <label class="label" for="cf-subject">
+                  {{ i18n.dict().contact.subject }} <span class="req">*</span>
+                </label>
+                <input
+                  id="cf-subject"
+                  class="input"
+                  type="text"
+                  formControlName="subject"
+                  [class.is-invalid]="invalid('subject')"
+                  [placeholder]="i18n.dict().contact.subjectPlaceholder"
+                  [attr.aria-invalid]="invalid('subject')"
+                />
+                @if (invalid('subject')) {
+                  <span class="field-error">{{ errorFor('subject') }}</span>
+                }
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label" for="cf-message">
+                {{ i18n.dict().contact.message }} <span class="req">*</span>
+              </label>
+              <textarea
+                id="cf-message"
+                class="textarea"
+                formControlName="message"
+                [class.is-invalid]="invalid('message')"
+                [placeholder]="i18n.dict().contact.messagePlaceholder"
+                [attr.aria-invalid]="invalid('message')"
+              ></textarea>
+              @if (invalid('message')) {
+                <span class="field-error">{{ errorFor('message') }}</span>
+              }
+            </div>
+
+            <!-- Honeypot. Hidden from people, left in the DOM for bots. -->
+            <div class="honeypot" aria-hidden="true">
+              <label for="cf-website">Website</label>
+              <input id="cf-website" type="text" formControlName="website" tabindex="-1" autocomplete="off" />
+            </div>
+
+            @if (errorMessage()) {
+              <p class="form__error" role="alert">{{ errorMessage() }}</p>
+            }
+
+            <button type="submit" class="btn btn--primary btn--block" [disabled]="submitting()">
+              @if (submitting()) {
+                <span class="spinner" aria-hidden="true"></span>
+                {{ i18n.dict().contact.submitting }}
+              } @else {
+                {{ contact()?.formCta || i18n.dict().contact.submit }}
+              }
+            </button>
+          </form>
+        }
+      </div>
+    </div>
+  </div>
+</section>

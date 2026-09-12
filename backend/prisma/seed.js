@@ -8,6 +8,7 @@
  */
 import bcrypt from 'bcryptjs';
 import { PrismaClient } from '@prisma/client';
+import { pathToFileURL } from 'node:url';
 import 'dotenv/config';
 
 const prisma = new PrismaClient();
@@ -16,7 +17,7 @@ const prisma = new PrismaClient();
 // Categories
 // ---------------------------------------------------------------------------
 
-const categories = [
+export const categories = [
   {
     slug: 'injection-molding',
     nameEn: 'Injection Molding',
@@ -92,7 +93,7 @@ const spec = (labelEn, labelAr, valueEn, valueAr, groupEn = null, groupAr = null
   groupAr,
 });
 
-const machines = [
+export const machines = [
   {
     slug: 'servo-plastic-injection-molding-machine-380t',
     category: 'injection-molding',
@@ -420,7 +421,7 @@ const machines = [
 // Editable site copy
 // ---------------------------------------------------------------------------
 
-const siteContent = [
+export const siteContent = [
   {
     key: 'home.hero',
     group: 'home',
@@ -767,9 +768,17 @@ async function main() {
   console.log('\nDone. Upload machine photographs from the admin dashboard.\n');
 }
 
-main()
-  .catch((error) => {
-    console.error('\nSeed failed:\n', error);
-    process.exit(1);
-  })
-  .finally(() => prisma.$disconnect());
+// Only seed when this file is the entry point. The data arrays above are
+// exported, so other tooling can import them without opening a database
+// connection or writing anything.
+const isEntryPoint =
+  process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+
+if (isEntryPoint) {
+  main()
+    .catch((error) => {
+      console.error('\nSeed failed:\n', error);
+      process.exit(1);
+    })
+    .finally(() => prisma.$disconnect());
+}

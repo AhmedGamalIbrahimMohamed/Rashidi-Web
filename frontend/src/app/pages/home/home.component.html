@@ -1,0 +1,180 @@
+<!-- ==========================================================================
+     HERO
+     ========================================================================== -->
+<section class="hero" #heroRoot>
+  <div class="grid-bg" aria-hidden="true"></div>
+  <div class="hero__aura" aria-hidden="true"></div>
+
+  <div class="hero__inner shell">
+    <div class="hero__copy">
+      @if (hero()?.eyebrow) {
+        <p class="eyebrow hero__eyebrow">{{ hero()?.eyebrow }}</p>
+      }
+
+      <h1 class="hero__title">
+        <!-- The split spans are decorative scaffolding for the animation; the
+             real sentence is exposed once, unbroken, to assistive technology. -->
+        <span class="visually-hidden">{{ headlineOne() }} {{ headlineTwo() }}</span>
+
+        <span class="hero__line" aria-hidden="true">
+          @if (splitHeadline()) {
+            @for (char of headlineChars(); track $index) {
+              <span class="hero__char">{{ char === ' ' ? '&nbsp;' : char }}</span>
+            }
+          } @else {
+            <span class="hero__block">{{ headlineOne() }}</span>
+          }
+        </span>
+
+        <!-- Always one element: the gradient is clipped to these glyphs, and a
+             transformed inline-block child would be painted outside that clip. -->
+        <span class="hero__line" aria-hidden="true">
+          <span class="hero__block hero__accent">{{ headlineTwo() }}</span>
+        </span>
+      </h1>
+
+      @if (hero()?.description) {
+        <p class="lead hero__lead" data-hero-stagger>{{ hero()?.description }}</p>
+      }
+
+      <div class="hero__actions" data-hero-stagger>
+        <a class="btn btn--primary" routerLink="/machines">
+          {{ hero()?.primaryCta || i18n.dict().home.machinerySection.cta }}
+          <svg class="btn__icon" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true">
+            <path
+              d="M2 8h11M9 4l4 4-4 4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              [attr.transform]="i18n.isRtl() ? 'translate(16,0) scale(-1,1)' : null"
+            />
+          </svg>
+        </a>
+        <a class="btn btn--ghost" routerLink="/about" fragment="contact">
+          {{ hero()?.secondaryCta || i18n.dict().nav.contact }}
+        </a>
+      </div>
+    </div>
+
+    <!-- The 3D object is deferred: Three.js is ~110kB over the wire and the
+         headline must not wait on it. `on idle` lets the hero copy paint and
+         become interactive first, then streams the scene in behind it. -->
+    <div class="hero__visual">
+      @defer (on idle) {
+        <app-hero-scene />
+      } @placeholder {
+        <div class="hero__visual-ph" aria-hidden="true"></div>
+      }
+    </div>
+  </div>
+
+  <div class="hero__scroll" aria-hidden="true">
+    <span class="hero__scroll-label">{{ i18n.dict().common.scroll }}</span>
+    <span class="hero__scroll-line"></span>
+  </div>
+</section>
+
+<!-- ==========================================================================
+     KEY FIGURES
+     ========================================================================== -->
+@if (stats().length) {
+  <section class="stats" appReveal revealChildren=".stat" [revealStagger]="0.09">
+    <div class="shell stats__grid">
+      @for (stat of stats(); track $index) {
+        <div class="stat">
+          <span class="stat__value">{{ stat.value }}</span>
+          <span class="stat__label">{{ stat.label }}</span>
+        </div>
+      }
+    </div>
+  </section>
+}
+
+<!-- ==========================================================================
+     WHAT WE DO
+     ========================================================================== -->
+@if (capabilities(); as caps) {
+  <section class="section capabilities">
+    <div class="shell">
+      <header class="capabilities__head" appReveal>
+        <h2 class="capabilities__title">{{ caps.title }}</h2>
+        @if (caps.subtitle) {
+          <p class="lead">{{ caps.subtitle }}</p>
+        }
+      </header>
+
+      <div class="capabilities__grid" appReveal revealChildren=".capability" [revealStagger]="0.1">
+        @for (item of caps.items ?? []; track $index) {
+          <article class="capability">
+            <span class="ticks" aria-hidden="true"></span>
+            <span class="capability__index">{{ item.index }}</span>
+            <h3 class="capability__title">{{ item.title }}</h3>
+            <p class="capability__body">{{ item.body }}</p>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+}
+
+<!-- ==========================================================================
+     MACHINERY
+     ========================================================================== -->
+<section class="section machinery">
+  <div class="shell">
+    <header class="machinery__head" appReveal>
+      <div>
+        <p class="eyebrow">{{ i18n.dict().home.machinerySection.eyebrow }}</p>
+        <h2 class="machinery__title">{{ i18n.dict().home.machinerySection.title }}</h2>
+        <p class="lead machinery__lead">{{ i18n.dict().home.machinerySection.subtitle }}</p>
+      </div>
+
+      <a class="btn btn--ghost machinery__all" routerLink="/machines">
+        {{ i18n.dict().home.machinerySection.cta }}
+        <svg class="btn__icon" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true">
+          <path
+            d="M2 8h11M9 4l4 4-4 4"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            [attr.transform]="i18n.isRtl() ? 'translate(16,0) scale(-1,1)' : null"
+          />
+        </svg>
+      </a>
+    </header>
+
+    @if (loadingFeatured()) {
+      <div class="machinery__grid">
+        @for (skeleton of [1, 2, 3]; track skeleton) {
+          <div class="skeleton" aria-hidden="true"></div>
+        }
+      </div>
+    } @else if (featured().length) {
+      <div class="machinery__grid" appReveal revealChildren="app-machine-card" [revealStagger]="0.08">
+        @for (machine of featured(); track machine.id) {
+          <app-machine-card [machine]="machine" />
+        }
+      </div>
+    } @else {
+      <p class="muted">{{ i18n.dict().common.empty }}</p>
+    }
+  </div>
+</section>
+
+<!-- ==========================================================================
+     CLOSING CTA
+     ========================================================================== -->
+<section class="cta">
+  <div class="grid-bg" aria-hidden="true"></div>
+  <div class="shell cta__inner" appReveal>
+    <h2 class="cta__title">{{ i18n.dict().home.ctaBand.title }}</h2>
+    <p class="cta__body">{{ i18n.dict().home.ctaBand.body }}</p>
+    <a class="btn btn--primary" routerLink="/about" fragment="contact">
+      {{ i18n.dict().home.ctaBand.button }}
+    </a>
+  </div>
+</section>

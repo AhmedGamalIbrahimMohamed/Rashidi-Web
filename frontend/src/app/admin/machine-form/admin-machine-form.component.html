@@ -1,0 +1,480 @@
+<div class="admin-page">
+  <header class="admin-head">
+    <div>
+      <a class="back" routerLink="/admin/machines">
+        <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <path d="M10 3 5 8l5 5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        {{ i18n.dict().admin.machines.title }}
+      </a>
+      <h1 class="admin-title">
+        {{ isEdit() ? i18n.dict().admin.machines.edit : i18n.dict().admin.machines.create }}
+      </h1>
+      @if (form.dirty) {
+        <p class="admin-subtitle unsaved">{{ i18n.dict().admin.form.unsaved }}</p>
+      }
+    </div>
+
+    <div class="admin-actions">
+      @if (isEdit() && form.get('slug')?.value) {
+        <a
+          class="btn btn--ghost btn--small"
+          [routerLink]="['/machines', form.get('slug')?.value]"
+          target="_blank"
+        >
+          {{ i18n.dict().common.viewDetails }}
+        </a>
+      }
+      <button type="button" class="btn btn--primary btn--small" [disabled]="saving()" (click)="save()">
+        {{ saving() ? i18n.dict().common.loading : i18n.dict().common.save }}
+      </button>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="admin-loading"><span></span><span></span><span></span></div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+      <!-- ================= Basics ================= -->
+      <section class="admin-section">
+        <div class="admin-section__head">
+          <h2 class="admin-section__title">{{ i18n.dict().admin.form.basics }}</h2>
+          <p class="admin-section__hint">{{ i18n.dict().admin.form.basicsHint }}</p>
+        </div>
+
+        <div class="admin-section__body">
+          <div class="admin-grid admin-grid--2">
+            <div class="field">
+              <label class="label" for="mf-nameEn">
+                {{ i18n.dict().admin.form.nameEn }} <span class="req">*</span>
+              </label>
+              <input
+                id="mf-nameEn"
+                class="input admin-en"
+                formControlName="nameEn"
+                [class.is-invalid]="invalid('nameEn')"
+              />
+            </div>
+
+            <div class="field">
+              <label class="label" for="mf-nameAr">
+                {{ i18n.dict().admin.form.nameAr }} <span class="req">*</span>
+              </label>
+              <input
+                id="mf-nameAr"
+                class="input admin-ar"
+                formControlName="nameAr"
+                [class.is-invalid]="invalid('nameAr')"
+              />
+            </div>
+
+            <div class="field">
+              <label class="label" for="mf-shortEn">{{ i18n.dict().admin.form.shortEn }}</label>
+              <textarea
+                id="mf-shortEn"
+                class="textarea admin-en short"
+                formControlName="shortDescriptionEn"
+              ></textarea>
+            </div>
+
+            <div class="field">
+              <label class="label" for="mf-shortAr">{{ i18n.dict().admin.form.shortAr }}</label>
+              <textarea
+                id="mf-shortAr"
+                class="textarea admin-ar short"
+                formControlName="shortDescriptionAr"
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="admin-grid admin-grid--3">
+            <div class="field">
+              <label class="label" for="mf-category">{{ i18n.dict().admin.form.category }}</label>
+              <select id="mf-category" class="select" formControlName="categoryId">
+                <option value="">{{ i18n.dict().admin.form.noCategory }}</option>
+                @for (category of categories.categories(); track category.id) {
+                  <option [value]="category.id">{{ i18n.localize(category, 'name') }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="field">
+              <label class="label" for="mf-status">{{ i18n.dict().admin.form.status }}</label>
+              <select id="mf-status" class="select" formControlName="status">
+                @for (status of statuses; track status) {
+                  <option [value]="status">{{ i18n.dict().status[status] }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="field">
+              <label class="label" for="mf-slug">{{ i18n.dict().admin.form.slug }}</label>
+              <input id="mf-slug" class="input admin-en" formControlName="slug" dir="ltr" />
+              <span class="hint">{{ i18n.dict().admin.form.slugHint }}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Descriptions ================= -->
+      <section class="admin-section">
+        <div class="admin-section__head">
+          <h2 class="admin-section__title">{{ i18n.dict().admin.form.descriptions }}</h2>
+          <p class="admin-section__hint">{{ i18n.dict().admin.form.descriptionsHint }}</p>
+        </div>
+
+        <div class="admin-section__body">
+          <div class="admin-grid admin-grid--2">
+            <div class="field">
+              <label class="label" for="mf-descEn">{{ i18n.dict().admin.form.descriptionEn }}</label>
+              <textarea id="mf-descEn" class="textarea admin-en tall" formControlName="descriptionEn"></textarea>
+            </div>
+
+            <div class="field">
+              <label class="label" for="mf-descAr">{{ i18n.dict().admin.form.descriptionAr }}</label>
+              <textarea id="mf-descAr" class="textarea admin-ar tall" formControlName="descriptionAr"></textarea>
+            </div>
+
+            <div class="field">
+              <label class="label" for="mf-techEn">{{ i18n.dict().admin.form.technicalEn }}</label>
+              <textarea id="mf-techEn" class="textarea admin-en" formControlName="technicalInfoEn"></textarea>
+            </div>
+
+            <div class="field">
+              <label class="label" for="mf-techAr">{{ i18n.dict().admin.form.technicalAr }}</label>
+              <textarea id="mf-techAr" class="textarea admin-ar" formControlName="technicalInfoAr"></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Commercial ================= -->
+      <section class="admin-section">
+        <div class="admin-section__head">
+          <h2 class="admin-section__title">{{ i18n.dict().admin.form.commercial }}</h2>
+          <p class="admin-section__hint">{{ i18n.dict().admin.form.commercialHint }}</p>
+        </div>
+
+        <div class="admin-section__body">
+          <div class="admin-grid admin-grid--3">
+            <div class="field">
+              <label class="label" for="mf-brand">{{ i18n.dict().admin.form.brand }}</label>
+              <input id="mf-brand" class="input" formControlName="brand" />
+            </div>
+            <div class="field">
+              <label class="label" for="mf-model">{{ i18n.dict().admin.form.model }}</label>
+              <input id="mf-model" class="input" formControlName="modelNumber" />
+            </div>
+            <div class="field">
+              <label class="label" for="mf-year">{{ i18n.dict().admin.form.year }}</label>
+              <input id="mf-year" class="input" type="number" min="1900" max="2100" formControlName="manufactureYear" />
+            </div>
+            <div class="field">
+              <label class="label" for="mf-origin">{{ i18n.dict().admin.form.origin }}</label>
+              <input id="mf-origin" class="input" formControlName="countryOfOrigin" />
+            </div>
+            <div class="field">
+              <label class="label" for="mf-condition">{{ i18n.dict().admin.form.condition }}</label>
+              <input id="mf-condition" class="input" formControlName="condition" />
+            </div>
+            <div class="field">
+              <label class="label" for="mf-order">{{ i18n.dict().admin.form.sortOrder }}</label>
+              <input id="mf-order" class="input" type="number" min="0" formControlName="sortOrder" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Specifications ================= -->
+      <section class="admin-section">
+        <div class="admin-section__head">
+          <h2 class="admin-section__title">{{ i18n.dict().admin.form.specifications }}</h2>
+          <p class="admin-section__hint">{{ i18n.dict().admin.form.specificationsHint }}</p>
+        </div>
+
+        <div class="admin-section__body">
+          @if (!specs.length) {
+            <p class="muted">{{ i18n.dict().admin.form.noSpecs }}</p>
+          }
+
+          <div class="specs" formArrayName="specifications">
+            @for (control of specs.controls; track $index; let i = $index) {
+              <div class="spec" [formGroupName]="i">
+                <span class="spec__num">{{ i18n.formatNumber(i + 1) }}</span>
+
+                <div class="spec__fields">
+                  <input
+                    class="input admin-en"
+                    formControlName="labelEn"
+                    [placeholder]="i18n.dict().admin.form.specLabelEn"
+                  />
+                  <input
+                    class="input admin-ar"
+                    formControlName="labelAr"
+                    [placeholder]="i18n.dict().admin.form.specLabelAr"
+                  />
+                  <input
+                    class="input admin-en"
+                    formControlName="valueEn"
+                    [placeholder]="i18n.dict().admin.form.specValueEn"
+                  />
+                  <input
+                    class="input admin-ar"
+                    formControlName="valueAr"
+                    [placeholder]="i18n.dict().admin.form.specValueAr"
+                  />
+                  <input
+                    class="input admin-en"
+                    formControlName="groupEn"
+                    [placeholder]="i18n.dict().admin.form.specGroupEn"
+                  />
+                  <input
+                    class="input admin-ar"
+                    formControlName="groupAr"
+                    [placeholder]="i18n.dict().admin.form.specGroupAr"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  class="icon-btn is-danger"
+                  (click)="removeSpec(i)"
+                  [attr.aria-label]="i18n.dict().admin.form.removeSpec"
+                >
+                  <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M4 8h8" stroke-linecap="round" />
+                  </svg>
+                </button>
+              </div>
+            }
+          </div>
+
+          <button type="button" class="btn btn--ghost btn--small" (click)="addSpec()">
+            + {{ i18n.dict().admin.form.addSpec }}
+          </button>
+        </div>
+      </section>
+
+      <!-- ================= Media ================= -->
+      <section class="admin-section">
+        <div class="admin-section__head">
+          <h2 class="admin-section__title">{{ i18n.dict().admin.form.images }}</h2>
+          <p class="admin-section__hint">{{ i18n.dict().admin.form.imagesHint }}</p>
+        </div>
+
+        <div class="admin-section__body">
+          @if (!isEdit()) {
+            <p class="notice">{{ i18n.dict().admin.form.saveFirst }}</p>
+          } @else {
+            <label class="dropzone">
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/avif"
+                multiple
+                (change)="onImagesSelected($event)"
+                [disabled]="uploading()"
+              />
+              <span class="dropzone__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M3.5 15v3.5a1.5 1.5 0 0 0 1.5 1.5h14a1.5 1.5 0 0 0 1.5-1.5V15" stroke-linecap="round" />
+                </svg>
+              </span>
+              <span class="dropzone__text">
+                <strong>{{ uploading() ? i18n.dict().admin.form.uploading : i18n.dict().admin.form.uploadImages }}</strong>
+                <small>{{ i18n.dict().admin.form.uploadHint }}</small>
+              </span>
+            </label>
+
+            @if (images().length) {
+              <div class="media">
+                @for (image of images(); track image.id) {
+                  <figure class="media__item" [class.is-main]="image.isMain">
+                    <app-machine-image [image]="image" [fallbackAlt]="''" ratio="4 / 3" />
+
+                    @if (image.isMain) {
+                      <span class="media__flag">{{ i18n.dict().admin.form.mainImage }}</span>
+                    }
+
+                    <figcaption class="media__caption">
+                      <input
+                        class="input input--xs admin-en"
+                        #altEn
+                        [value]="image.altEn ?? ''"
+                        [placeholder]="i18n.dict().admin.form.altEn"
+                      />
+                      <input
+                        class="input input--xs admin-ar"
+                        #altAr
+                        [value]="image.altAr ?? ''"
+                        [placeholder]="i18n.dict().admin.form.altAr"
+                      />
+
+                      <div class="media__actions">
+                        <button
+                          type="button"
+                          class="icon-btn"
+                          [disabled]="image.isMain"
+                          (click)="setMainImage(image)"
+                          [attr.aria-label]="i18n.dict().admin.form.setMain"
+                          [attr.title]="i18n.dict().admin.form.setMain"
+                        >
+                          <svg viewBox="0 0 16 16" width="13" height="13" [attr.fill]="image.isMain ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.4">
+                            <path d="m8 2 1.8 3.8 4.2.6-3 3 .7 4.1L8 11.6 4.3 13.5l.7-4.1-3-3 4.2-.6z" stroke-linejoin="round" />
+                          </svg>
+                        </button>
+
+                        <button
+                          type="button"
+                          class="icon-btn"
+                          (click)="saveImageAlt(image, altEn.value, altAr.value)"
+                          [attr.aria-label]="i18n.dict().admin.form.saveImageMeta"
+                          [attr.title]="i18n.dict().admin.form.saveImageMeta"
+                        >
+                          <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="m3 8.5 3.5 3.5L13 5" stroke-linecap="round" stroke-linejoin="round" />
+                          </svg>
+                        </button>
+
+                        <button
+                          type="button"
+                          class="icon-btn is-danger"
+                          (click)="pendingImageDelete.set(image)"
+                          [attr.aria-label]="i18n.dict().admin.form.deleteImage"
+                        >
+                          <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.5h5.8l.6-8.5" stroke-linecap="round" stroke-linejoin="round" />
+                          </svg>
+                        </button>
+                      </div>
+                    </figcaption>
+                  </figure>
+                }
+              </div>
+            }
+          }
+        </div>
+      </section>
+
+      <!-- ================= Documents ================= -->
+      @if (isEdit()) {
+        <section class="admin-section">
+          <div class="admin-section__head">
+            <h2 class="admin-section__title">{{ i18n.dict().admin.form.documents }}</h2>
+            <p class="admin-section__hint">{{ i18n.dict().admin.form.documentsHint }}</p>
+          </div>
+
+          <div class="admin-section__body">
+            <label class="dropzone dropzone--slim">
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx,.xls,.xlsx,image/*"
+                multiple
+                (change)="onDocumentsSelected($event)"
+                [disabled]="uploadingDocs()"
+              />
+              <span class="dropzone__text">
+                <strong>
+                  {{ uploadingDocs() ? i18n.dict().admin.form.uploading : i18n.dict().admin.form.uploadDocuments }}
+                </strong>
+                <small>{{ i18n.dict().admin.form.documentHint }}</small>
+              </span>
+            </label>
+
+            @if (documents().length) {
+              <ul class="doclist">
+                @for (document of documents(); track document.id) {
+                  <li>
+                    <a [href]="document.url" target="_blank" rel="noopener noreferrer">
+                      {{ i18n.localize(document, 'title') }}
+                    </a>
+                    <button
+                      type="button"
+                      class="icon-btn is-danger"
+                      (click)="deleteDocument(document)"
+                      [attr.aria-label]="i18n.dict().common.delete"
+                    >
+                      <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="m4 4 8 8M12 4l-8 8" stroke-linecap="round" />
+                      </svg>
+                    </button>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        </section>
+      }
+
+      <!-- ================= SEO ================= -->
+      <section class="admin-section">
+        <div class="admin-section__head">
+          <h2 class="admin-section__title">{{ i18n.dict().admin.form.seo }}</h2>
+          <p class="admin-section__hint">{{ i18n.dict().admin.form.seoHint }}</p>
+        </div>
+
+        <div class="admin-section__body">
+          <div class="admin-grid admin-grid--2">
+            <div class="field">
+              <label class="label" for="mf-mtEn">{{ i18n.dict().admin.form.metaTitleEn }}</label>
+              <input id="mf-mtEn" class="input admin-en" formControlName="metaTitleEn" />
+            </div>
+            <div class="field">
+              <label class="label" for="mf-mtAr">{{ i18n.dict().admin.form.metaTitleAr }}</label>
+              <input id="mf-mtAr" class="input admin-ar" formControlName="metaTitleAr" />
+            </div>
+            <div class="field">
+              <label class="label" for="mf-mdEn">{{ i18n.dict().admin.form.metaDescEn }}</label>
+              <textarea id="mf-mdEn" class="textarea admin-en short" formControlName="metaDescriptionEn"></textarea>
+            </div>
+            <div class="field">
+              <label class="label" for="mf-mdAr">{{ i18n.dict().admin.form.metaDescAr }}</label>
+              <textarea id="mf-mdAr" class="textarea admin-ar short" formControlName="metaDescriptionAr"></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Publishing ================= -->
+      <section class="admin-section">
+        <div class="admin-section__head">
+          <h2 class="admin-section__title">{{ i18n.dict().admin.form.publishing }}</h2>
+        </div>
+
+        <div class="admin-section__body">
+          <div class="toggles">
+            <label class="switch">
+              <input type="checkbox" formControlName="isPublished" />
+              <span class="switch__track"></span>
+              <span class="switch__label">{{ i18n.dict().admin.form.isPublished }}</span>
+            </label>
+
+            <label class="switch">
+              <input type="checkbox" formControlName="isFeatured" />
+              <span class="switch__track"></span>
+              <span class="switch__label">{{ i18n.dict().admin.form.isFeatured }}</span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <div class="formbar">
+        <a class="btn btn--ghost btn--small" routerLink="/admin/machines">
+          {{ i18n.dict().common.cancel }}
+        </a>
+        <button type="submit" class="btn btn--primary btn--small" [disabled]="saving()">
+          {{ saving() ? i18n.dict().common.loading : i18n.dict().common.save }}
+        </button>
+      </div>
+    </form>
+  }
+</div>
+
+@if (pendingImageDelete()) {
+  <app-confirm-dialog
+    [title]="i18n.dict().admin.form.deleteImage"
+    [body]="i18n.dict().admin.machines.confirmDeleteBody"
+    (confirmed)="confirmImageDelete()"
+    (cancelled)="pendingImageDelete.set(null)"
+  />
+}

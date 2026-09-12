@@ -1,0 +1,206 @@
+<div class="admin-page">
+  <header class="admin-head">
+    <div>
+      <h1 class="admin-title">{{ i18n.dict().admin.machines.title }}</h1>
+      <p class="admin-subtitle">
+        {{ i18n.formatNumber(total()) }} {{ i18n.dict().machinery.machinesFound }}
+      </p>
+    </div>
+
+    <div class="admin-actions">
+      <a class="btn btn--primary btn--small" routerLink="/admin/machines/new">
+        {{ i18n.dict().admin.machines.add }}
+      </a>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <input
+      class="input toolbar__search"
+      type="search"
+      [value]="search"
+      (input)="onSearch($any($event.target).value)"
+      [placeholder]="i18n.dict().admin.machines.searchPlaceholder"
+      [attr.aria-label]="i18n.dict().common.search"
+    />
+
+    <select
+      class="select toolbar__select"
+      [value]="statusFilter()"
+      (change)="onStatusFilter($any($event.target).value)"
+      [attr.aria-label]="i18n.dict().machinery.allStatuses"
+    >
+      <option value="">{{ i18n.dict().machinery.allStatuses }}</option>
+      @for (status of statuses; track status) {
+        <option [value]="status">{{ i18n.dict().status[status] }}</option>
+      }
+    </select>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-loading">
+      <span></span><span></span><span></span><span></span>
+    </div>
+  } @else if (!items().length) {
+    <div class="admin-empty">
+      <p class="admin-empty__title">{{ i18n.dict().admin.machines.empty }}</p>
+      <p class="admin-empty__body">{{ i18n.dict().admin.machines.emptyBody }}</p>
+      <a class="btn btn--primary btn--small" routerLink="/admin/machines/new">
+        {{ i18n.dict().admin.machines.add }}
+      </a>
+    </div>
+  } @else {
+    <div class="admin-table-wrap">
+      <div class="admin-table-scroll">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th scope="col" class="col-img"></th>
+              <th scope="col">{{ i18n.dict().admin.form.nameEn }}</th>
+              <th scope="col">{{ i18n.dict().machine.category }}</th>
+              <th scope="col">{{ i18n.dict().admin.form.status }}</th>
+              <th scope="col">{{ i18n.dict().admin.machines.published }}</th>
+              <th scope="col">{{ i18n.dict().admin.machines.views }}</th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (machine of items(); track machine.id) {
+              <tr [class.is-busy]="isBusy(machine.id)">
+                <td class="col-img">
+                  <a class="thumb" [routerLink]="['/admin/machines', machine.id]">
+                    <app-machine-image
+                      [image]="mainImage(machine)"
+                      [fallbackAlt]="i18n.localize(machine, 'name')"
+                      ratio="1 / 1"
+                    />
+                  </a>
+                </td>
+
+                <td>
+                  <a class="name" [routerLink]="['/admin/machines', machine.id]">
+                    <strong>{{ i18n.localize(machine, 'name') }}</strong>
+                    <span class="name__slug">{{ machine.slug }}</span>
+                  </a>
+                  <span class="name__flags">
+                    @if (machine.isFeatured) {
+                      <span class="pill pill--warn">{{ i18n.dict().admin.machines.featured }}</span>
+                    }
+                    <span class="name__images">
+                      {{ i18n.formatNumber(machine.images.length) }}
+                      {{ i18n.dict().admin.machines.imageCount }}
+                    </span>
+                  </span>
+                </td>
+
+                <td class="muted">
+                  {{
+                    machine.category
+                      ? i18n.localize(machine.category, 'name')
+                      : i18n.dict().machine.uncategorised
+                  }}
+                </td>
+
+                <td>
+                  <button
+                    type="button"
+                    class="status-btn"
+                    [attr.data-status]="machine.status"
+                    [disabled]="isBusy(machine.id)"
+                    (click)="cycleStatus(machine)"
+                    [attr.title]="i18n.dict().admin.machines.statusChanged"
+                  >
+                    {{ i18n.dict().status[machine.status] }}
+                  </button>
+                </td>
+
+                <td>
+                  <label class="switch">
+                    <input
+                      type="checkbox"
+                      [checked]="machine.isPublished"
+                      [disabled]="isBusy(machine.id)"
+                      (change)="togglePublished(machine)"
+                    />
+                    <span class="switch__track"></span>
+                    <span class="visually-hidden">{{ i18n.dict().admin.form.isPublished }}</span>
+                  </label>
+                </td>
+
+                <td class="views">{{ i18n.formatNumber(machine.viewCount) }}</td>
+
+                <td>
+                  <div class="admin-table__actions">
+                    <a
+                      class="icon-btn"
+                      [routerLink]="['/machines', machine.slug]"
+                      target="_blank"
+                      [attr.aria-label]="i18n.dict().common.viewDetails"
+                    >
+                      <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M6.5 3.5h-3v9h9v-3" stroke-linecap="round" />
+                        <path d="M9.5 2.5h4v4M13.5 2.5 8 8" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </a>
+
+                    <a
+                      class="icon-btn"
+                      [routerLink]="['/admin/machines', machine.id]"
+                      [attr.aria-label]="i18n.dict().common.edit"
+                    >
+                      <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M11 2.5 13.5 5 5.5 13H3v-2.5z" stroke-linejoin="round" />
+                      </svg>
+                    </a>
+
+                    <button
+                      type="button"
+                      class="icon-btn is-danger"
+                      (click)="pendingDelete.set(machine)"
+                      [attr.aria-label]="i18n.dict().common.delete"
+                    >
+                      <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.5h5.8l.6-8.5" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    @if (totalPages() > 1) {
+      <div class="pager">
+        <button type="button" class="btn btn--ghost btn--small" [disabled]="page() === 1" (click)="changePage(-1)">
+          {{ i18n.dict().common.previous }}
+        </button>
+        <span class="pager__label">
+          {{ i18n.dict().common.page }} {{ i18n.formatNumber(page()) }}
+          {{ i18n.dict().common.of }} {{ i18n.formatNumber(totalPages()) }}
+        </span>
+        <button
+          type="button"
+          class="btn btn--ghost btn--small"
+          [disabled]="page() === totalPages()"
+          (click)="changePage(1)"
+        >
+          {{ i18n.dict().common.next }}
+        </button>
+      </div>
+    }
+  }
+</div>
+
+@if (pendingDelete(); as target) {
+  <app-confirm-dialog
+    [title]="i18n.dict().admin.machines.confirmDelete"
+    [body]="i18n.localize(target, 'name') + ' — ' + i18n.dict().admin.machines.confirmDeleteBody"
+    [busy]="deleting()"
+    (confirmed)="confirmDelete()"
+    (cancelled)="pendingDelete.set(null)"
+  />
+}

@@ -1,0 +1,96 @@
+<header class="header" [class.is-scrolled]="scrolled()" [class.is-open]="menuOpen()">
+  <div class="header__inner shell">
+    <a class="header__brand" routerLink="/" [attr.aria-label]="i18n.dict().brand.full">
+      <app-logo variant="mark" [eager]="true" />
+    </a>
+
+    <!-- Desktop navigation -->
+    <nav class="header__nav" [attr.aria-label]="i18n.dict().nav.menu">
+      @for (link of links(); track link.path) {
+        <a
+          class="header__link"
+          [routerLink]="link.path"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: link.exact }"
+        >
+          <span class="header__link-text">{{ link.label }}</span>
+          <span class="header__link-rule" aria-hidden="true"></span>
+        </a>
+      }
+    </nav>
+
+    <div class="header__actions">
+      <!-- Language switcher: shows the language you would move TO. -->
+      <button
+        type="button"
+        class="lang"
+        (click)="switchLanguage()"
+        [attr.aria-label]="i18n.dict().nav.switchTo"
+        [attr.title]="i18n.dict().nav.switchTo"
+      >
+        <svg class="lang__globe" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+          <circle cx="8" cy="8" r="6.4" fill="none" stroke="currentColor" stroke-width="1.2" />
+          <ellipse cx="8" cy="8" rx="2.8" ry="6.4" fill="none" stroke="currentColor" stroke-width="1.2" />
+          <path d="M1.9 6h12.2M1.9 10h12.2" stroke="currentColor" stroke-width="1.2" />
+        </svg>
+        <span class="lang__code">{{ i18n.alternate().short }}</span>
+      </button>
+
+      <a class="btn btn--primary btn--small header__cta" routerLink="/about" fragment="contact">
+        {{ i18n.dict().nav.contact }}
+      </a>
+
+      <!-- Mobile trigger -->
+      <button
+        type="button"
+        class="burger"
+        (click)="toggleMenu()"
+        [attr.aria-expanded]="menuOpen()"
+        aria-controls="mobile-menu"
+        [attr.aria-label]="menuOpen() ? i18n.dict().nav.close : i18n.dict().nav.open"
+      >
+        <span class="burger__bar"></span>
+        <span class="burger__bar"></span>
+      </button>
+    </div>
+  </div>
+
+  <span class="header__hairline" aria-hidden="true"></span>
+</header>
+
+<!-- Mobile panel -->
+<div
+  class="panel"
+  id="mobile-menu"
+  [class.is-open]="menuOpen()"
+  [attr.inert]="menuOpen() ? null : ''"
+>
+  <div class="panel__grid" aria-hidden="true"></div>
+
+  <nav class="panel__nav" [attr.aria-label]="i18n.dict().nav.menu">
+    @for (link of links(); track link.path; let i = $index) {
+      <a
+        class="panel__link"
+        [routerLink]="link.path"
+        routerLinkActive="is-active"
+        [routerLinkActiveOptions]="{ exact: link.exact }"
+        [style.--i]="i"
+        (click)="closeMenu()"
+      >
+        <span class="panel__index">{{ '0' + (i + 1) }}</span>
+        <span class="panel__label">{{ link.label }}</span>
+      </a>
+    }
+  </nav>
+
+  <div class="panel__foot">
+    <a class="btn btn--primary btn--block" routerLink="/about" fragment="contact" (click)="closeMenu()">
+      {{ i18n.dict().nav.contact }}
+    </a>
+
+    <button type="button" class="panel__lang" (click)="switchLanguage()">
+      {{ i18n.dict().nav.language }}
+      <strong>{{ i18n.alternate().label }}</strong>
+    </button>
+  </div>
+</div>

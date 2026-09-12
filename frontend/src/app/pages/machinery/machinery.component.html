@@ -1,0 +1,175 @@
+<!-- ==========================================================================
+     PAGE HEAD
+     ========================================================================== -->
+<section class="head">
+  <div class="grid-bg" aria-hidden="true"></div>
+  <div class="shell head__inner">
+    <p class="eyebrow">{{ i18n.dict().machinery.eyebrow }}</p>
+    <h1 class="head__title">{{ i18n.dict().machinery.title }}</h1>
+    <p class="lead">{{ i18n.dict().machinery.lead }}</p>
+  </div>
+</section>
+
+<!-- ==========================================================================
+     FILTERS
+     ========================================================================== -->
+<section class="filters">
+  <div class="shell">
+    <!-- Category chips: the primary way people browse a machinery catalogue. -->
+    @if (categoryService.categories().length) {
+      <div class="chips" role="group" [attr.aria-label]="i18n.dict().machinery.allCategories">
+        <button
+          type="button"
+          class="chip"
+          [class.is-active]="!activeCategory()"
+          (click)="selectCategory('')"
+        >
+          {{ i18n.dict().machinery.allCategories }}
+        </button>
+        @for (category of categoryService.categories(); track category.id) {
+          <button
+            type="button"
+            class="chip"
+            [class.is-active]="activeCategory() === category.slug"
+            (click)="selectCategory(category.slug)"
+          >
+            {{ i18n.localize(category, 'name') }}
+            @if (category._count?.machines) {
+              <span class="chip__count">{{ category._count?.machines }}</span>
+            }
+          </button>
+        }
+      </div>
+    }
+
+    <div class="controls">
+      <div class="controls__search">
+        <svg class="controls__icon" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true">
+          <circle cx="7" cy="7" r="4.6" fill="none" stroke="currentColor" stroke-width="1.5" />
+          <path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+        </svg>
+        <input
+          class="input controls__input"
+          type="search"
+          [value]="searchTerm"
+          (input)="onSearchInput($any($event.target).value)"
+          [placeholder]="i18n.dict().machinery.searchPlaceholder"
+          [attr.aria-label]="i18n.dict().common.search"
+        />
+      </div>
+
+      <label class="controls__select">
+        <span class="visually-hidden">{{ i18n.dict().machinery.allStatuses }}</span>
+        <select class="select" [value]="activeStatus()" (change)="selectStatus($any($event.target).value)">
+          <option value="">{{ i18n.dict().machinery.allStatuses }}</option>
+          @for (status of statuses; track status) {
+            <option [value]="status">{{ i18n.dict().status[status] }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="controls__select">
+        <span class="visually-hidden">{{ i18n.dict().machinery.sortLabel }}</span>
+        <select class="select" [value]="activeSort()" (change)="selectSort($any($event.target).value)">
+          @for (key of sortKeys; track key) {
+            <option [value]="key">{{ i18n.dict().machinery.sort[key] }}</option>
+          }
+        </select>
+      </label>
+
+      @if (hasFilters()) {
+        <button type="button" class="btn btn--ghost btn--small" (click)="clearFilters()">
+          {{ i18n.dict().common.clearFilters }}
+        </button>
+      }
+    </div>
+
+    @if (!loading() && !failed()) {
+      <p class="filters__count" aria-live="polite">
+        {{ i18n.formatNumber(total()) }}
+        {{ total() === 1 ? i18n.dict().machinery.machineFound : i18n.dict().machinery.machinesFound }}
+      </p>
+    }
+  </div>
+</section>
+
+<!-- ==========================================================================
+     RESULTS
+     ========================================================================== -->
+<section class="results">
+  <div class="shell">
+    @if (loading()) {
+      <div class="grid">
+        @for (skeleton of [1, 2, 3, 4, 5, 6]; track skeleton) {
+          <div class="skeleton" aria-hidden="true"></div>
+        }
+      </div>
+      <p class="visually-hidden" aria-live="polite">{{ i18n.dict().common.loading }}</p>
+    } @else if (failed()) {
+      <div class="state">
+        <h2 class="state__title">{{ i18n.dict().common.error }}</h2>
+        <p class="state__body">{{ i18n.dict().common.errorBody }}</p>
+        <button type="button" class="btn btn--primary" (click)="retry()">
+          {{ i18n.dict().common.retry }}
+        </button>
+      </div>
+    } @else if (!items().length) {
+      <div class="state">
+        <svg class="state__mark" viewBox="0 0 48 48" width="52" height="52" aria-hidden="true">
+          <circle cx="21" cy="21" r="13" fill="none" stroke="currentColor" stroke-width="1.6" />
+          <path d="M31 31 42 42" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          <path d="M16 21h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+        </svg>
+        <h2 class="state__title">{{ i18n.dict().machinery.noResults }}</h2>
+        <p class="state__body">{{ i18n.dict().machinery.noResultsBody }}</p>
+        @if (hasFilters()) {
+          <button type="button" class="btn btn--primary" (click)="clearFilters()">
+            {{ i18n.dict().common.clearFilters }}
+          </button>
+        }
+      </div>
+    } @else {
+      <div class="grid" appReveal revealChildren="app-machine-card" [revealStagger]="0.06">
+        @for (machine of items(); track machine.id; let i = $index) {
+          <app-machine-card [machine]="machine" [eager]="i < 3" />
+        }
+      </div>
+
+      @if (totalPages() > 1) {
+        <nav class="pager" [attr.aria-label]="i18n.dict().common.page">
+          <button
+            type="button"
+            class="pager__step"
+            [disabled]="page() === 1"
+            (click)="goToPage(page() - 1)"
+          >
+            {{ i18n.dict().common.previous }}
+          </button>
+
+          <span class="pager__pages">
+            @for (number of pageNumbers(); track number) {
+              <button
+                type="button"
+                class="pager__num"
+                [class.is-active]="number === page()"
+                [attr.aria-current]="number === page() ? 'page' : null"
+                (click)="goToPage(number)"
+              >
+                {{ i18n.formatNumber(number) }}
+              </button>
+            }
+          </span>
+
+          <button
+            type="button"
+            class="pager__step"
+            [disabled]="page() === totalPages()"
+            (click)="goToPage(page() + 1)"
+          >
+            {{ i18n.dict().common.next }}
+          </button>
+        </nav>
+      }
+    }
+  </div>
+</section>
