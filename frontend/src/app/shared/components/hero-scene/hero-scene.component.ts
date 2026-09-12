@@ -14,6 +14,73 @@ import { environment } from '../../../../environments/environment';
 import { MotionService } from '../../../core/services/motion.service';
 import { ThemeService } from '../../../core/services/theme.service';
 
+/** Gradient stops for the equirectangular environment, as [offset, colour]. */
+type EnvironmentRamp = ReadonlyArray<readonly [number, string]>;
+
+/**
+ * Every value that differs between the two themes, in one place.
+ *
+ * Both `build()` and `retheme()` read from here, so a scene constructed in dark
+ * mode and one switched into dark mode are guaranteed to be identical — which
+ * is the property that makes retheming-in-place safe to prefer over a rebuild.
+ */
+interface ScenePalette {
+  environment: EnvironmentRamp;
+  /** Opacity of the workshop-light patch in the reflections. */
+  spot: number;
+  ambient: number;
+  key: number;
+  rim: number;
+  fill: number;
+  steel: { color: number; roughness: number; envMapIntensity: number };
+  darkSteel: { color: number; envMapIntensity: number };
+  /** The accent band glows on dark; on white it only needs to read as blue. */
+  accentEmissive: number;
+  cage: { color: number; opacity: number };
+  particles: { color: number; opacity: number };
+}
+
+const PALETTE: Record<'light' | 'dark', ScenePalette> = {
+  dark: {
+    environment: [
+      [0, '#0b1320'], // sky: deep charcoal
+      [0.42, '#2a3a52'],
+      [0.52, '#8fb8e8'], // horizon: cool highlight
+      [0.62, '#16202e'],
+      [1, '#05070b'], // ground
+    ],
+    spot: 0.9,
+    ambient: 0.45,
+    key: 2.4,
+    rim: 90,
+    fill: 32,
+    steel: { color: 0x9aa6b8, roughness: 0.28, envMapIntensity: 1.25 },
+    darkSteel: { color: 0x2b3644, envMapIntensity: 0.9 },
+    accentEmissive: 1.5,
+    cage: { color: 0x1e6fd0, opacity: 0.28 },
+    particles: { color: 0x6da8f0, opacity: 0.55 },
+  },
+  light: {
+    environment: [
+      [0, '#ffffff'], // sky: bright studio
+      [0.44, '#dbe6f5'],
+      [0.52, '#ffffff'], // horizon: specular band
+      [0.62, '#aebfd6'],
+      [1, '#5d6b80'], // ground: mid grey, keeps form
+    ],
+    spot: 1,
+    ambient: 1.1,
+    key: 3.1,
+    rim: 34,
+    fill: 14,
+    steel: { color: 0xc3ccd9, roughness: 0.22, envMapIntensity: 1.5 },
+    darkSteel: { color: 0x64748b, envMapIntensity: 1.2 },
+    accentEmissive: 0.55,
+    cage: { color: 0x94a3b8, opacity: 0.4 },
+    particles: { color: 0x7e93ad, opacity: 0.4 },
+  },
+};
+
 /**
  * Hero 3D object — an abstract machined assembly.
  *
@@ -29,16 +96,18 @@ import { ThemeService } from '../../../core/services/theme.service';
  *   - below `threeMinViewportWidth`, and under prefers-reduced-motion, the 3D
  *     never initialises at all.
  *
- * A CSS/SVG fallback sits permanently behind the canvas, so a WebGL failure,
- * a small screen or a reduced-motion preference all degrade to a composed
- * visual rather than an empty rectangle.
+ * A CSS/SVG fallback sits behind the canvas, so a WebGL failure, a small screen
+ * or a reduced-motion preference all degrade to a composed visual rather than
+ * an empty rectangle. It is a substitute for the model, not a backdrop to it:
+ * once the canvas is drawing, the fallback is fully hidden.
  */
 @Component({
   selector: 'app-hero-scene',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="scene" #host>
-      <!-- Always present; the canvas paints over it when 3D is active. -->
+      <!-- Present but invisible while the canvas is drawing; it takes over
+           only where WebGL does not run. -->
       <div class="fallback" [class.fallback--only]="!active()" aria-hidden="true">
         <svg class="fallback__rings" viewBox="0 0 400 400">
           <defs>
@@ -94,12 +163,15 @@ import { ThemeService } from '../../../core/services/theme.service';
 
     /* --- Fallback visual ---------------------------------------------------- */
 
+    /* Hidden once the 3D is up: the rings are a stand-in for the model, not a
+       backdrop for it. They only ever show where WebGL does not run — phones,
+       reduced motion, no context — which is the --only state below. */
     .fallback {
       position: absolute;
       inset: 0;
       display: grid;
       place-items: center;
-      opacity: 0.55;
+      opacity: 0;
       transition: opacity 700ms var(--ease);
     }
 
@@ -161,6 +233,25 @@ export class HeroSceneComponent implements AfterViewInit, OnDestroy {
   private cage?: THREE.LineSegments;
   private particles?: THREE.Points;
 
+  /* Held so a theme switch can retint them in place. Without these references
+     the only way back to a light or a material is a full scene traversal. */
+  private lights?: {
+    ambient: THREE.AmbientLight;
+    key: THREE.DirectionalLight;
+    rim: THREE.PointLight;
+    fill: THREE.PointLight;
+  };
+  private materials?: {
+    steel: THREE.MeshStandardMaterial;
+    darkSteel: THREE.MeshStandardMaterial;
+    accent: THREE.MeshStandardMaterial;
+    cage: THREE.LineBasicMaterial;
+    particles: THREE.PointsMaterial;
+  };
+
+  /** Reused across themes: constructing one recompiles its blur shaders. */
+  private pmrem?: THREE.PMREMGenerator;
+
   private frameId = 0;
   private running = false;
   private clock = new THREE.Clock();
@@ -186,17 +277,67 @@ export class HeroSceneComponent implements AfterViewInit, OnDestroy {
   constructor() {
     /*
      * Lighting, the environment map and the material colours all differ by
-     * theme, and several are baked in at construction time. Rather than mutate
-     * a dozen properties in place, the scene is torn down and rebuilt — a theme
-     * switch is a rare, deliberate action, and a rebuild is both simpler and
-     * guaranteed to be consistent. Does nothing until a scene actually exists.
+     * theme. This used to tear the scene down and rebuild it, which measured at
+     * ~1.3s of blocked main thread per toggle on a throttled machine: a new
+     * WebGLRenderer means recompiling every shader program, and a new
+     * PMREMGenerator recompiles its own on top of that.
+     *
+     * Nothing structural actually differs between the themes — same geometry,
+     * same object graph, only colours and intensities — so the scene is
+     * retinted in place instead. Does nothing until a scene exists.
      */
     effect(() => {
       const next = this.theme.isDark() ? 'dark' : 'light';
       if (!this.renderer || this.builtFor === next) return;
-      this.teardown();
-      requestAnimationFrame(() => this.init());
+      this.retheme(next);
     });
+  }
+
+  /**
+   * Move the live scene to the other theme without reconstructing it.
+   *
+   * Only uniforms change — light intensities, material colours, the
+   * environment texture — none of which alter a program cache key, so the
+   * compiled shaders are kept and the switch costs a few milliseconds.
+   */
+  private retheme(theme: 'light' | 'dark'): void {
+    const { scene, renderer, camera, lights, materials } = this;
+    if (!scene || !renderer || !camera || !lights || !materials) return;
+
+    const palette = PALETTE[theme];
+
+    lights.ambient.intensity = palette.ambient;
+    lights.key.intensity = palette.key;
+    lights.rim.intensity = palette.rim;
+    lights.fill.intensity = palette.fill;
+
+    materials.steel.color.setHex(palette.steel.color);
+    materials.steel.roughness = palette.steel.roughness;
+    materials.steel.envMapIntensity = palette.steel.envMapIntensity;
+
+    materials.darkSteel.color.setHex(palette.darkSteel.color);
+    materials.darkSteel.envMapIntensity = palette.darkSteel.envMapIntensity;
+
+    materials.accent.emissiveIntensity = palette.accentEmissive;
+
+    materials.cage.color.setHex(palette.cage.color);
+    materials.cage.opacity = palette.cage.opacity;
+
+    materials.particles.color.setHex(palette.particles.color);
+    materials.particles.opacity = palette.particles.opacity;
+
+    // The environment is what actually decides whether the metal reads as dark
+    // steel or bright chrome, so it has to be regenerated — but against the
+    // existing renderer and a reused generator, which is the cheap path.
+    const previous = scene.environment;
+    scene.environment = this.buildEnvironment(renderer, palette);
+    previous?.dispose();
+
+    this.builtFor = theme;
+
+    // The render loop is stopped whenever the hero is off screen or the tab is
+    // hidden. Paint once so a switch made in that state is not left stale.
+    if (!this.running) renderer.render(scene, camera);
   }
 
   ngAfterViewInit(): void {
@@ -271,11 +412,13 @@ export class HeroSceneComponent implements AfterViewInit, OnDestroy {
     camera.lookAt(0, 0, 0);
     this.camera = camera;
 
-    scene.environment = this.buildEnvironment(renderer);
+    const palette = PALETTE[this.theme.isDark() ? 'dark' : 'light'];
+    scene.environment = this.buildEnvironment(renderer, palette);
 
-    this.addLights(scene);
-    this.addAssembly(scene);
-    this.addParticles(scene);
+    this.addLights(scene, palette);
+    const surfaces = this.addAssembly(scene, palette);
+    const particles = this.addParticles(scene, palette);
+    this.materials = { ...surfaces, particles };
 
     this.observe(host);
     host.addEventListener('pointermove', this.onPointerMove, { passive: true });
@@ -290,7 +433,7 @@ export class HeroSceneComponent implements AfterViewInit, OnDestroy {
    * — a few kilobytes of GPU memory instead of a network request, and enough
    * for the brushed-steel read we want.
    */
-  private buildEnvironment(renderer: THREE.WebGLRenderer): THREE.Texture {
+  private buildEnvironment(renderer: THREE.WebGLRenderer, palette: ScenePalette): THREE.Texture {
     const size = 64;
     const canvas = document.createElement('canvas');
     canvas.width = size;
@@ -299,30 +442,16 @@ export class HeroSceneComponent implements AfterViewInit, OnDestroy {
     // Metal is mostly reflection, so the environment — not the material — is
     // what decides whether the object reads as dark steel or bright chrome.
     // On a white page a dark environment makes the object look like a hole.
-    const dark = this.theme.isDark();
-
     const context = canvas.getContext('2d');
     if (context) {
       const gradient = context.createLinearGradient(0, 0, 0, size);
-      if (dark) {
-        gradient.addColorStop(0, '#0b1320'); // sky: deep charcoal
-        gradient.addColorStop(0.42, '#2a3a52');
-        gradient.addColorStop(0.52, '#8fb8e8'); // horizon: cool highlight
-        gradient.addColorStop(0.62, '#16202e');
-        gradient.addColorStop(1, '#05070b'); // ground
-      } else {
-        gradient.addColorStop(0, '#ffffff'); // sky: bright studio
-        gradient.addColorStop(0.44, '#dbe6f5');
-        gradient.addColorStop(0.52, '#ffffff'); // horizon: specular band
-        gradient.addColorStop(0.62, '#aebfd6');
-        gradient.addColorStop(1, '#5d6b80'); // ground: mid grey, keeps form
-      }
+      for (const [offset, color] of palette.environment) gradient.addColorStop(offset, color);
       context.fillStyle = gradient;
       context.fillRect(0, 0, size, size);
 
       // A single bright patch reads as a workshop light in the reflections.
       const spot = context.createRadialGradient(size * 0.72, size * 0.3, 0, size * 0.72, size * 0.3, size * 0.3);
-      spot.addColorStop(0, `rgba(255,255,255,${dark ? 0.9 : 1})`);
+      spot.addColorStop(0, `rgba(255,255,255,${palette.spot})`);
       spot.addColorStop(1, 'rgba(255,255,255,0)');
       context.fillStyle = spot;
       context.fillRect(0, 0, size, size);
@@ -332,20 +461,18 @@ export class HeroSceneComponent implements AfterViewInit, OnDestroy {
     texture.mapping = THREE.EquirectangularReflectionMapping;
     texture.colorSpace = THREE.SRGBColorSpace;
 
-    const pmrem = new THREE.PMREMGenerator(renderer);
-    const environmentMap = pmrem.fromEquirectangular(texture).texture;
-    pmrem.dispose();
+    this.pmrem ??= new THREE.PMREMGenerator(renderer);
+    const environmentMap = this.pmrem.fromEquirectangular(texture).texture;
     texture.dispose();
 
     return environmentMap;
   }
 
-  private addLights(scene: THREE.Scene): void {
-    const dark = this.theme.isDark();
+  private addLights(scene: THREE.Scene, palette: ScenePalette): void {
+    const ambient = new THREE.AmbientLight(0x8fb8e8, palette.ambient);
+    scene.add(ambient);
 
-    scene.add(new THREE.AmbientLight(0x8fb8e8, dark ? 0.45 : 1.1));
-
-    const key = new THREE.DirectionalLight(0xffffff, dark ? 2.4 : 3.1);
+    const key = new THREE.DirectionalLight(0xffffff, palette.key);
     key.position.set(4, 5, 6);
     scene.add(key);
 
@@ -353,32 +480,36 @@ export class HeroSceneComponent implements AfterViewInit, OnDestroy {
     // the brand without colouring the whole material. A rim glow only reads
     // against a dark ground, so light mode dials it right back and leans on
     // the environment reflection instead.
-    const rim = new THREE.PointLight(0x007bff, dark ? 90 : 34, 26, 2);
+    const rim = new THREE.PointLight(0x007bff, palette.rim, 26, 2);
     rim.position.set(-5, 1.5, -4);
     scene.add(rim);
 
-    const fill = new THREE.PointLight(0x3d9bff, dark ? 32 : 14, 22, 2);
+    const fill = new THREE.PointLight(0x3d9bff, palette.fill, 22, 2);
     fill.position.set(3.5, -3, 2.5);
     scene.add(fill);
+
+    this.lights = { ambient, key, rim, fill };
   }
 
-  private addAssembly(scene: THREE.Scene): void {
+  /** Returns the retintable materials; the geometry itself is theme-agnostic. */
+  private addAssembly(
+    scene: THREE.Scene,
+    palette: ScenePalette,
+  ): Omit<NonNullable<typeof this.materials>, 'particles'> {
     const group = new THREE.Group();
 
-    const dark = this.theme.isDark();
-
     const steel = new THREE.MeshStandardMaterial({
-      color: dark ? 0x9aa6b8 : 0xc3ccd9,
+      color: palette.steel.color,
       metalness: 0.98,
-      roughness: dark ? 0.28 : 0.22,
-      envMapIntensity: dark ? 1.25 : 1.5,
+      roughness: palette.steel.roughness,
+      envMapIntensity: palette.steel.envMapIntensity,
     });
 
     const darkSteel = new THREE.MeshStandardMaterial({
-      color: dark ? 0x2b3644 : 0x64748b,
+      color: palette.darkSteel.color,
       metalness: 0.9,
       roughness: 0.42,
-      envMapIntensity: dark ? 0.9 : 1.2,
+      envMapIntensity: palette.darkSteel.envMapIntensity,
     });
 
     const accent = new THREE.MeshStandardMaterial({
@@ -386,7 +517,7 @@ export class HeroSceneComponent implements AfterViewInit, OnDestroy {
       metalness: 0.35,
       roughness: 0.22,
       emissive: 0x0a5fd0,
-      emissiveIntensity: dark ? 1.5 : 0.55,
+      emissiveIntensity: palette.accentEmissive,
     });
 
     // Turned shaft: the radii step the way a lathe would cut them.
@@ -431,13 +562,14 @@ export class HeroSceneComponent implements AfterViewInit, OnDestroy {
     }
 
     // Wireframe tolerance cage.
+    const cageMaterial = new THREE.LineBasicMaterial({
+      color: palette.cage.color,
+      transparent: true,
+      opacity: palette.cage.opacity,
+    });
     const cage = new THREE.LineSegments(
       new THREE.EdgesGeometry(new THREE.IcosahedronGeometry(3.5, 1)),
-      new THREE.LineBasicMaterial({
-        color: dark ? 0x1e6fd0 : 0x94a3b8,
-        transparent: true,
-        opacity: dark ? 0.28 : 0.4,
-      }),
+      cageMaterial,
     );
     group.add(cage);
     this.cage = cage;
@@ -445,10 +577,12 @@ export class HeroSceneComponent implements AfterViewInit, OnDestroy {
     group.rotation.set(0.42, 0.5, 0.12);
     scene.add(group);
     this.assembly = group;
+
+    return { steel, darkSteel, accent, cage: cageMaterial };
   }
 
   /** Slow drifting motes — depth cue, 140 points, negligible cost. */
-  private addParticles(scene: THREE.Scene): void {
+  private addParticles(scene: THREE.Scene, palette: ScenePalette): THREE.PointsMaterial {
     const count = 140;
     const positions = new Float32Array(count * 3);
 
@@ -461,20 +595,21 @@ export class HeroSceneComponent implements AfterViewInit, OnDestroy {
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
-    const points = new THREE.Points(
-      geometry,
-      new THREE.PointsMaterial({
-        color: this.theme.isDark() ? 0x6da8f0 : 0x7e93ad,
-        size: 0.035,
-        transparent: true,
-        opacity: this.theme.isDark() ? 0.55 : 0.4,
-        sizeAttenuation: true,
-        depthWrite: false,
-      }),
-    );
+    const material = new THREE.PointsMaterial({
+      color: palette.particles.color,
+      size: 0.035,
+      transparent: true,
+      opacity: palette.particles.opacity,
+      sizeAttenuation: true,
+      depthWrite: false,
+    });
+
+    const points = new THREE.Points(geometry, material);
 
     scene.add(points);
     this.particles = points;
+
+    return material;
   }
 
   // --- lifecycle ------------------------------------------------------------
@@ -559,10 +694,14 @@ export class HeroSceneComponent implements AfterViewInit, OnDestroy {
 
     if (this.scene?.environment) this.scene.environment.dispose();
 
+    this.pmrem?.dispose();
+    this.pmrem = undefined;
     this.renderer?.dispose();
     this.renderer = undefined;
     this.scene = undefined;
     this.camera = undefined;
+    this.lights = undefined;
+    this.materials = undefined;
     this.builtFor = null;
     this.active.set(false);
   }

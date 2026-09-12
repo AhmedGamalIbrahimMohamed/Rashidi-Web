@@ -1,6 +1,32 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  afterNextRender,
+  computed,
+  inject,
+  input,
+} from '@angular/core';
 import { I18nService } from '../../../core/services/i18n.service';
 import { ThemeService } from '../../../core/services/theme.service';
+
+/**
+ * Colourways already requested, so the warm-up runs once per artwork rather
+ * than once per component instance.
+ */
+const warmed = new Set<string>();
+
+/**
+ * Pull a colourway into the browser cache ahead of time.
+ *
+ * Without this, the first theme switch points `src` at a file the browser has
+ * never seen and the mark blanks for as long as a ~60kB PNG takes to arrive.
+ * In the header, that reads as the whole page stalling.
+ */
+function warm(source: string): void {
+  if (typeof Image === 'undefined' || warmed.has(source)) return;
+  warmed.add(source);
+  new Image().src = source;
+}
 
 /**
  * The brand mark.
@@ -108,6 +134,17 @@ export class LogoComponent {
   readonly eager = input(false);
 
   protected readonly alt = computed(() => this.i18n.dict().brand.full);
+
+  constructor() {
+    // Warm both colourways once the mark is on screen, so toggling theme is a
+    // cache hit rather than a download. Deliberately after render: it must not
+    // compete with the first paint for bandwidth.
+    afterNextRender(() => {
+      const base = this.variant() === 'lockup' ? 'logo' : 'logo-mark';
+      warm(`${base}.png`);
+      warm(`${base}-light.png`);
+    });
+  }
 
   /** White ink on dark surfaces, charcoal ink on light ones. */
   protected readonly source = computed(() => {
