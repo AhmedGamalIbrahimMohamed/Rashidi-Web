@@ -698,14 +698,17 @@ export const siteContent = [
 // ---------------------------------------------------------------------------
 
 async function seedAdmin() {
-  const email = (process.env.ADMIN_EMAIL || 'admin@rashidi-ie.com').toLowerCase();
-  const password = process.env.ADMIN_PASSWORD || 'ChangeMe!2024';
+  const email = (process.env.ADMIN_EMAIL || 'rashidi@admin.com').toLowerCase();
+  const password = process.env.ADMIN_PASSWORD || '0122221724';
   const name = process.env.ADMIN_NAME || 'Rashidi Administrator';
 
   const existing = await prisma.user.findUnique({ where: { email } });
 
+  // An existing account keeps its password: re-running the seed must never
+  // silently reset live credentials. Use `npm run admin:set` to change them.
   if (existing) {
     console.log(`  · admin account already present (${email}) — password left unchanged`);
+    console.log('    run `npm run admin:set` to reset it');
     return;
   }
 
@@ -714,9 +717,6 @@ async function seedAdmin() {
   });
 
   console.log(`  · admin account created — ${email} / ${password}`);
-  if (password === 'ChangeMe!2024') {
-    console.log('    \x1b[33m! Change this password from the dashboard before going live.\x1b[0m');
-  }
 }
 
 async function main() {

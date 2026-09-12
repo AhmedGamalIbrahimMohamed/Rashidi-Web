@@ -62,8 +62,24 @@ npm run db:seed           # categories, 10 machines, all site copy, admin user
 npm run dev               # http://localhost:4000
 ```
 
-The seed prints the admin credentials it created. Change the password from the
-dashboard before going live.
+### Dashboard sign-in
+
+The seed creates the administrator account from `ADMIN_EMAIL` / `ADMIN_PASSWORD`
+in `.env`, which ship as:
+
+| | |
+| --- | --- |
+| URL | `/admin` |
+| Email | `rashidi@admin.com` |
+| Password | `0122221724` |
+
+Re-running the seed never changes an existing account's password. To set or
+reset it — including if it is ever lost:
+
+```bash
+npm run admin:set                                       # uses ADMIN_* from .env
+npm run admin:set -- rashidi@admin.com 0122221724       # or pass them explicitly
+```
 
 > On a fresh database you can use `npm run db:push` instead of `prisma:deploy`
 > to skip migration history entirely.
