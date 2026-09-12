@@ -1,7 +1,7 @@
 {
   "name": "rashidi-backend",
   "version": "1.0.0",
-  "description": "Rashidi Import & Export — REST API (Express + Prisma + PostgreSQL)",
+  "description": "Rashidy Import & Export — REST API (Express + Prisma + PostgreSQL)",
   "type": "module",
   "main": "src/server.js",
   "engines": { "node": ">=20" },

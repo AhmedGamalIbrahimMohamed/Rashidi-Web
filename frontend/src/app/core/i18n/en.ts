@@ -7,8 +7,8 @@
  */
 export const en = {
   brand: {
-    name: 'Rashidi',
-    full: 'Rashidi Import & Export',
+    name: 'Rashidy',
+    full: 'Rashidy Import & Export',
     sub: 'Import & Export',
   },
 

@@ -42,7 +42,7 @@ export async function sendEnquiryNotification(message, machine) {
 
   const html = `
     <div style="font-family:Inter,Segoe UI,Arial,sans-serif;color:#1F2937">
-      <h2 style="margin:0 0 16px;color:#007BFF">New enquiry — Rashidi Import &amp; Export</h2>
+      <h2 style="margin:0 0 16px;color:#007BFF">New enquiry — Rashidy Import &amp; Export</h2>
       <table style="border-collapse:collapse;width:100%;max-width:620px">
         ${rows
           .map(

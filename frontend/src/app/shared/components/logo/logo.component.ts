@@ -5,8 +5,9 @@ import { ThemeService } from '../../../core/services/theme.service';
 /**
  * The brand mark.
  *
- * `variant="lockup"` renders the full mark + wordmark for the intro and footer;
- * `variant="mark"` renders the R on its own for the compact header and mobile.
+ * `variant="lockup"` renders the full mark + wordmark for the intro splash;
+ * `variant="mark"` renders the R beside the typeset name — the lockup now shared
+ * by the header, the footer and the admin login.
  *
  * Two colourways ship, per the brand sheet: white ink for dark surfaces and
  * charcoal ink for light ones. Both are the same artwork and share an identical
@@ -66,7 +67,7 @@ import { ThemeService } from '../../../core/services/theme.service';
 
     .logo__name {
       font-family: var(--font-display);
-      font-size: 1.0625rem;
+      font-size: var(--logo-name-size, 1.0625rem);
       font-weight: 700;
       letter-spacing: 0.06em;
       text-transform: uppercase;
@@ -75,7 +76,7 @@ import { ThemeService } from '../../../core/services/theme.service';
 
     .logo__sub {
       font-family: var(--font-mono);
-      font-size: 0.5625rem;
+      font-size: var(--logo-sub-size, 0.5625rem);
       letter-spacing: 0.24em;
       text-transform: uppercase;
       color: var(--text-mute);
@@ -93,7 +94,7 @@ import { ThemeService } from '../../../core/services/theme.service';
 
     @media (max-width: 480px) {
       .logo__text {
-        display: none;
+        display: var(--logo-text-mobile, none);
       }
     }
   `,

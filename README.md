@@ -1,4 +1,4 @@
-# Rashidi Import & Export — الراشيدي للاستيراد والتصدير
+# Rashidy Import & Export — الراشيدي للاستيراد والتصدير
 
 Corporate website and catalogue for an industrial machinery import/export company.
 Bilingual (English / Arabic with full RTL), with an admin dashboard so the company

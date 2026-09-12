@@ -20,7 +20,7 @@ export interface PageSeo {
 }
 
 const SUFFIX = {
-  en: 'Rashidi Import & Export',
+  en: 'Rashidy Import & Export',
   ar: 'الراشيدي للاستيراد والتصدير',
 } as const satisfies Record<Locale, string>;
 
@@ -91,7 +91,7 @@ export class SeoService {
     return {
       '@context': 'https://schema.org',
       '@type': 'Organization',
-      name: 'Rashidi Import & Export',
+      name: 'Rashidy Import & Export',
       alternateName: 'الراشيدي للاستيراد والتصدير',
       url: this.origin,
       logo: this.absolute('/logo.png'),
@@ -142,7 +142,7 @@ export class SeoService {
           : 'https://schema.org/SoldOut',
         // Price is quoted per enquiry — no priceSpecification is emitted rather
         // than publishing a placeholder number.
-        seller: { '@type': 'Organization', name: 'Rashidi Import & Export' },
+        seller: { '@type': 'Organization', name: 'Rashidy Import & Export' },
       },
     };
   }

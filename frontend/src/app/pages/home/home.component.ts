@@ -77,7 +77,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
       const social = this.content.social();
 
       this.seo.apply({
-        title: meta?.defaultTitle ?? 'Rashidi Import & Export — Industrial & Plastic Machinery',
+        title: meta?.defaultTitle ?? 'Rashidy Import & Export — Industrial & Plastic Machinery',
         description: SeoService.truncate(
           meta?.defaultDescription ?? this.hero()?.description ?? '',
         ),

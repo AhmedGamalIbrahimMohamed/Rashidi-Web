@@ -220,7 +220,7 @@ export const machines = [
     technicalInfoAr:
       'يُسلَّم مع وحدة معالجة المياه الكاملة وبرنامج تشغيل تجريبي لمدة ٦٠ يوماً وتدريب المشغلين في الموقع.',
     status: 'AVAILABLE',
-    brand: 'Rashidi Engineering',
+    brand: 'Rashidy Engineering',
     modelNumber: 'RWL-1000',
     manufactureYear: 2023,
     countryOfOrigin: 'Italy',
@@ -342,7 +342,7 @@ export const machines = [
     descriptionAr:
       'يكبس الأفلام والعبوات السائبة إلى بالات بكثافة نقل مناسبة، وهي النقطة التي تُكسب أو تُخسر فيها جدوى إعادة التدوير اقتصادياً — مقطورة ممتلئة بدل أخرى نصف فارغة. يتولى الربط الأوتوماتيكي خمسة أسلاك دون وجود مشغل عند الماكينة.',
     status: 'IN_STOCK',
-    brand: 'Rashidi Engineering',
+    brand: 'Rashidy Engineering',
     modelNumber: 'HBP-60A',
     manufactureYear: 2023,
     countryOfOrigin: 'Turkey',
@@ -433,7 +433,7 @@ export const siteContent = [
       headlineLine1: 'Industrial Machinery.',
       headlineLine2: 'Global Solutions.',
       description:
-        'Rashidi Import & Export supplies plastic processing and heavy industrial machinery to manufacturers across the region — sourced, inspected and commissioned by people who have run these machines themselves.',
+        'Rashidy Import & Export supplies plastic processing and heavy industrial machinery to manufacturers across the region — sourced, inspected and commissioned by people who have run these machines themselves.',
       primaryCta: 'Explore Machinery',
       secondaryCta: 'Contact Us',
     },
@@ -540,7 +540,7 @@ export const siteContent = [
     valueEn: {
       eyebrow: 'About Us',
       title: 'Two decades between the factory floor and the shipping manifest',
-      lead: 'Rashidi Import & Export is an industrial machinery trading company specialising in plastic processing equipment and large-format industrial plant.',
+      lead: 'Rashidy Import & Export is an industrial machinery trading company specialising in plastic processing equipment and large-format industrial plant.',
       paragraphs: [
         'We began as a supplier of spare parts to plastic factories, and that origin still shapes how we work. We were the people receiving the call when a screw seized at two in the morning, which taught us exactly what separates a machine worth importing from one that will sit idle waiting for a part.',
         'Today we source, import, inspect and commission complete production lines — injection molding presses, blow molding systems, extrusion lines, recycling plants and the auxiliary equipment that keeps them all running. Our network of suppliers spans Europe, Turkey, the Far East and the Gulf.',
@@ -661,9 +661,9 @@ export const siteContent = [
     labelAr: 'الموقع — إعدادات SEO',
     sortOrder: 1,
     valueEn: {
-      siteName: 'Rashidi Import & Export',
+      siteName: 'Rashidy Import & Export',
       tagline: 'Industrial & Plastic Machinery',
-      defaultTitle: 'Rashidi Import & Export — Industrial & Plastic Machinery',
+      defaultTitle: 'Rashidy Import & Export — Industrial & Plastic Machinery',
       defaultDescription:
         'Import, export and supply of plastic processing machinery and heavy industrial equipment. Injection molding, blow molding, extrusion, recycling lines and auxiliary equipment — inspected, delivered and commissioned.',
     },
@@ -684,7 +684,7 @@ export const siteContent = [
     valueEn: {
       blurb:
         'Industrial and plastic machinery, sourced and commissioned for manufacturers across the region.',
-      copyright: 'Rashidi Import & Export. All rights reserved.',
+      copyright: 'Rashidy Import & Export. All rights reserved.',
     },
     valueAr: {
       blurb: 'آلات صناعية وآلات بلاستيك، تُورَّد وتُشغَّل لمصانع المنطقة.',
@@ -700,7 +700,7 @@ export const siteContent = [
 async function seedAdmin() {
   const email = (process.env.ADMIN_EMAIL || 'rashidi@admin.com').toLowerCase();
   const password = process.env.ADMIN_PASSWORD || '0122221724';
-  const name = process.env.ADMIN_NAME || 'Rashidi Administrator';
+  const name = process.env.ADMIN_NAME || 'Rashidy Administrator';
 
   const existing = await prisma.user.findUnique({ where: { email } });
 
@@ -720,7 +720,7 @@ async function seedAdmin() {
 }
 
 async function main() {
-  console.log('\nSeeding Rashidi Import & Export…\n');
+  console.log('\nSeeding Rashidy Import & Export…\n');
 
   await seedAdmin();
 

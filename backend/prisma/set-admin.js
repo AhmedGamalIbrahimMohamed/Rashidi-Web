@@ -19,7 +19,7 @@ async function main() {
 
   const email = (emailArg || process.env.ADMIN_EMAIL || '').trim().toLowerCase();
   const password = passwordArg || process.env.ADMIN_PASSWORD || '';
-  const name = nameArg || process.env.ADMIN_NAME || 'Rashidi Administrator';
+  const name = nameArg || process.env.ADMIN_NAME || 'Rashidy Administrator';
 
   if (!email || !password) {
     console.error(

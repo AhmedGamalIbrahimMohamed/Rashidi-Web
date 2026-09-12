@@ -1,7 +1,7 @@
 {
   "name": "rashidi-frontend",
   "version": "1.0.0",
-  "description": "Rashidi Import & Export — corporate website (Angular)",
+  "description": "Rashidy Import & Export — corporate website (Angular)",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

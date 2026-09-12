@@ -51,7 +51,9 @@
 }
 
 .header__brand {
-  --logo-h: 32px;
+  --logo-h: 46px;
+  --logo-name-size: 1.5rem;
+  --logo-sub-size: 0.8125rem;
   display: flex;
   align-items: center;
   flex-shrink: 0;
@@ -60,6 +62,14 @@
   &:hover {
     opacity: 0.82;
   }
+}
+
+/* The bar tightens to 64px on scroll; the lockup steps down with it so it
+   never crowds the hairline. */
+.header.is-scrolled .header__brand {
+  --logo-h: 38px;
+  --logo-name-size: 1.3125rem;
+  --logo-sub-size: 0.75rem;
 }
 
 /* --- Desktop navigation --------------------------------------------------- */

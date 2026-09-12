@@ -14,7 +14,7 @@ import { LogoComponent } from '../../shared/components/logo/logo.component';
       <div class="footer__top shell">
         <div class="footer__brand">
           <a routerLink="/" [attr.aria-label]="i18n.dict().brand.full">
-            <app-logo variant="lockup" />
+            <app-logo variant="mark" />
           </a>
           @if (footer()?.blurb) {
             <p class="footer__blurb">{{ footer()?.blurb }}</p>
@@ -89,7 +89,10 @@ import { LogoComponent } from '../../shared/components/logo/logo.component';
     }
 
     .footer__brand {
-      --logo-h: 78px;
+      --logo-h: 52px;
+      --logo-name-size: 1.625rem;
+      --logo-sub-size: 0.875rem;
+      --logo-text-mobile: flex;
       display: flex;
       flex-direction: column;
       gap: 1.1rem;

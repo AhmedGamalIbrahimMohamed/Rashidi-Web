@@ -1,4 +1,4 @@
-// Rashidi Import & Export — data model
+// Rashidy Import & Export — data model
 // PostgreSQL + Prisma
 //
 // Bilingual strategy: every visitor-facing string is stored as two columns

@@ -10,7 +10,7 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./pages/home/home.component').then((m) => m.HomeComponent),
-    title: 'Rashidi Import & Export',
+    title: 'Rashidy Import & Export',
   },
   {
     path: 'machines',

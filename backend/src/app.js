@@ -67,7 +67,7 @@ export function createApp() {
     res.json({
       success: true,
       data: {
-        name: 'Rashidi Import & Export API',
+        name: 'Rashidy Import & Export API',
         docs: `${env.apiPrefix}/health`,
       },
     });

@@ -19,7 +19,7 @@ import { LogoComponent } from '../../shared/components/logo/logo.component';
         <span class="ticks" aria-hidden="true"></span>
 
         <a class="login__brand" routerLink="/">
-          <app-logo variant="lockup" [eager]="true" />
+          <app-logo variant="mark" [eager]="true" />
         </a>
 
         <h1 class="login__title">{{ i18n.dict().admin.loginTitle }}</h1>
@@ -125,8 +125,21 @@ import { LogoComponent } from '../../shared/components/logo/logo.component';
     }
 
     .login__brand {
-      --logo-h: 80px;
+      --logo-h: 56px;
+      --logo-name-size: 1.75rem;
+      --logo-sub-size: 0.9375rem;
+      --logo-text-mobile: flex;
       margin-bottom: 1.25rem;
+    }
+
+    /* The card loses most of its width on a phone; the lockup steps down so the
+       wordmark stays on one line instead of breaking the card open. */
+    @media (max-width: 420px) {
+      .login__brand {
+        --logo-h: 44px;
+        --logo-name-size: 1.375rem;
+        --logo-sub-size: 0.75rem;
+      }
     }
 
     .login__title {

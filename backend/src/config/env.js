@@ -86,7 +86,7 @@ export const env = {
     secure: bool(process.env.SMTP_SECURE, false),
     user: process.env.SMTP_USER,
     password: process.env.SMTP_PASSWORD,
-    from: process.env.MAIL_FROM || 'Rashidi Website <no-reply@rashidi.com>',
+    from: process.env.MAIL_FROM || 'Rashidy Website <no-reply@rashidi.com>',
     // Where contact-form enquiries are delivered.
     to: process.env.MAIL_TO,
   },
