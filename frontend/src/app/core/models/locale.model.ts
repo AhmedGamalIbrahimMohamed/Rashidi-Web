@@ -13,9 +13,10 @@ export interface LocaleDefinition {
   tag: string;
 }
 
+/** Arabic first — it is the site's default, and LOCALES[0] is the fallback definition. */
 export const LOCALES: readonly LocaleDefinition[] = [
-  { code: 'en', label: 'English', short: 'EN', dir: 'ltr', tag: 'en' },
   { code: 'ar', label: 'العربية', short: 'ع', dir: 'rtl', tag: 'ar' },
+  { code: 'en', label: 'English', short: 'EN', dir: 'ltr', tag: 'en' },
 ] as const;
 
 export const isLocale = (value: unknown): value is Locale => value === 'en' || value === 'ar';

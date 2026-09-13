@@ -698,7 +698,7 @@ export const siteContent = [
 // ---------------------------------------------------------------------------
 
 async function seedAdmin() {
-  const email = (process.env.ADMIN_EMAIL || 'rashidi@admin.com').toLowerCase();
+  const email = (process.env.ADMIN_EMAIL || 'rashidy@admin.com').toLowerCase();
   const password = process.env.ADMIN_PASSWORD || '0122221724';
   const name = process.env.ADMIN_NAME || 'Rashidy Administrator';
 

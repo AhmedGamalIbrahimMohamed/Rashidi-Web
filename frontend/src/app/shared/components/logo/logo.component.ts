@@ -6,6 +6,7 @@ import {
   inject,
   input,
 } from '@angular/core';
+import { Locale } from '../../../core/models/locale.model';
 import { I18nService } from '../../../core/services/i18n.service';
 import { ThemeService } from '../../../core/services/theme.service';
 
@@ -46,7 +47,11 @@ function warm(source: string): void {
   selector: 'app-logo',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <span class="logo" [class.logo--lockup]="variant() === 'lockup'">
+    <span
+      class="logo"
+      [class.logo--lockup]="variant() === 'lockup'"
+      [class.logo--rtl]="isRtl()"
+    >
       <img
         class="logo__img"
         [src]="source()"
@@ -60,8 +65,8 @@ function warm(source: string): void {
 
       @if (variant() === 'mark' && withWordmark()) {
         <span class="logo__text" aria-hidden="true">
-          <span class="logo__name">{{ i18n.dict().brand.name }}</span>
-          <span class="logo__sub">{{ i18n.dict().brand.sub }}</span>
+          <span class="logo__name">{{ brand().name }}</span>
+          <span class="logo__sub">{{ brand().sub }}</span>
         </span>
       }
     </span>
@@ -112,11 +117,11 @@ function warm(source: string): void {
       margin-top: 3px;
     }
 
-    [dir='rtl'] .logo__name {
+    .logo--rtl .logo__name {
       letter-spacing: 0;
     }
 
-    [dir='rtl'] .logo__sub {
+    .logo--rtl .logo__sub {
       letter-spacing: 0.05em;
       font-family: var(--font-body);
     }
@@ -136,7 +141,26 @@ export class LogoComponent {
   readonly withWordmark = input(true);
   readonly eager = input(false);
 
-  protected readonly alt = computed(() => this.i18n.dict().brand.full);
+  /**
+   * Pins the wordmark to one language. Left unset it follows the active
+   * locale, which is what every surface but the intro splash wants.
+   */
+  readonly locale = input<Locale | null>(null);
+
+  private readonly strings = computed(() => {
+    const pinned = this.locale();
+    return pinned ? this.i18n.dictFor(pinned) : this.i18n.dict();
+  });
+
+  protected readonly brand = computed(() => this.strings().brand);
+
+  protected readonly alt = computed(() => this.strings().brand.full);
+
+  /** Follows the pinned language when there is one, the document otherwise. */
+  protected readonly isRtl = computed(() => {
+    const pinned = this.locale();
+    return pinned ? pinned === 'ar' : this.i18n.isRtl();
+  });
 
   constructor() {
     // Warm both colourways once the mark is on screen, so toggling theme is a

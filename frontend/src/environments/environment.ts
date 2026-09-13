@@ -22,7 +22,7 @@ export const environment = {
   },
 
   i18n: {
-    defaultLocale: 'en' as const,
+    defaultLocale: 'ar' as const,
     storageKey: 'rashidi.locale',
   },
 

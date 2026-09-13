@@ -5,6 +5,7 @@ import {
   Component,
   ElementRef,
   OnDestroy,
+  computed,
   inject,
   output,
   viewChild,
@@ -30,16 +31,16 @@ import { LogoComponent } from '../../shared/components/logo/logo.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [LogoComponent],
   template: `
-    <div class="intro" #root role="status" [attr.aria-label]="i18n.dict().intro.loading">
+    <div class="intro" #root dir="ltr" role="status" [attr.aria-label]="copy().loading">
       <div class="intro__grid" aria-hidden="true"></div>
       <div class="intro__glow" aria-hidden="true"></div>
 
       <div class="intro__stack">
         <div class="intro__logo" #logo>
-          <app-logo variant="mark" [eager]="true" />
+          <app-logo variant="mark" [eager]="true" locale="en" />
         </div>
 
-        <p class="intro__tagline" #tagline>{{ i18n.dict().intro.tagline }}</p>
+        <p class="intro__tagline" #tagline>{{ copy().tagline }}</p>
 
         <div class="intro__bar" #bar>
           <span class="intro__fill" #fill></span>
@@ -114,11 +115,6 @@ import { LogoComponent } from '../../shared/components/logo/logo.component';
       margin: 0;
     }
 
-    [dir='rtl'] .intro__tagline {
-      font-family: var(--font-body);
-      letter-spacing: 0.06em;
-    }
-
     .intro__bar {
       position: relative;
       width: min(240px, 54vw);
@@ -163,9 +159,17 @@ import { LogoComponent } from '../../shared/components/logo/logo.component';
   `,
 })
 export class IntroComponent implements AfterViewInit, OnDestroy {
-  protected readonly i18n = inject(I18nService);
+  private readonly i18n = inject(I18nService);
   private readonly motion = inject(MotionService);
   private readonly document = inject(DOCUMENT);
+
+  /**
+   * The splash is always English, whatever language the site is in: it paints
+   * before the visitor has made any choice, and the wordmark reads as the
+   * brand's Latin lockup. The panel is an LTR island (dir="ltr" on the root)
+   * so the progress bar still fills left-to-right inside an RTL document.
+   */
+  protected readonly copy = computed(() => this.i18n.dictFor('en').intro);
 
   /** Emitted when the overlay has finished clearing. */
   readonly finished = output<void>();

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -37,6 +37,24 @@
           }
         } catch (e) {
           document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
+
+    <!--
+      Same idea for language. Arabic/RTL is the markup default, so only a
+      returning visitor who switched to English needs fixing up here — without
+      it the first paint is mirrored before I18nService boots and corrects it.
+    -->
+    <script>
+      (function () {
+        try {
+          if (localStorage.getItem('rashidi.locale') === 'en') {
+            document.documentElement.setAttribute('lang', 'en');
+            document.documentElement.setAttribute('dir', 'ltr');
+          }
+        } catch (e) {
+          /* Blocked storage — the Arabic default in the markup stands. */
         }
       })();
     </script>

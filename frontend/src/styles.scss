@@ -180,6 +180,15 @@
   --font-body: 'IBM Plex Sans Arabic', 'Inter', system-ui, sans-serif;
 }
 
+/* An LTR island nested in an RTL document — the intro splash, which is always
+   English — takes the Latin stacks and the unflipped inline axis back. Placed
+   after the RTL block so it wins on the element that carries dir='ltr'. */
+[dir='ltr'] {
+  --flip: 1;
+  --font-display: 'Space Grotesk', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --font-body: 'Inter', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+}
+
 /* --- Reset ---------------------------------------------------------------- */
 
 *,

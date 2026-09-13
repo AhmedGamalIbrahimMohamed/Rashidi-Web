@@ -57,6 +57,15 @@ export class I18nService {
    */
   readonly dict = computed(() => DICTIONARIES[this._locale()]);
 
+  /**
+   * The dictionary of one specific locale, regardless of the active one — for
+   * the few surfaces that are pinned to a single language, such as the intro
+   * splash, which is always English.
+   */
+  dictFor(locale: Locale): typeof en {
+    return DICTIONARIES[locale];
+  }
+
   constructor() {
     this.applyToDocument(this._locale());
   }
@@ -141,20 +150,14 @@ export class I18nService {
   }
 
   /**
-   * Preference order: an explicit past choice, then the browser's languages,
-   * then the configured default. The site is English-first by design, so an
-   * Arabic browser gets Arabic only if English is not also acceptable.
+   * The site is Arabic-first: a first-time visitor always lands in Arabic,
+   * whatever their browser asks for. Only an explicit past choice from the
+   * switcher overrides the configured default, so the browser's language list
+   * is deliberately not consulted.
    */
   private readInitialLocale(): Locale {
     const stored = this.safeRead(environment.i18n.storageKey);
     if (isLocale(stored)) return stored;
-
-    const browserLanguages = this.document.defaultView?.navigator?.languages ?? [];
-    for (const language of browserLanguages) {
-      const base = language.toLowerCase().split('-')[0];
-      if (base === 'en') return 'en';
-      if (base === 'ar') return 'ar';
-    }
 
     return environment.i18n.defaultLocale;
   }
