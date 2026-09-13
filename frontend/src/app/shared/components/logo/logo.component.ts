@@ -31,9 +31,12 @@ function warm(source: string): void {
 /**
  * The brand mark.
  *
- * `variant="lockup"` renders the full mark + wordmark for the intro splash;
- * `variant="mark"` renders the R beside the typeset name — the lockup now shared
- * by the header, the footer and the admin login.
+ * `variant="mark"` renders the R beside the typeset name — the one lockup shared
+ * by the intro splash, the header, the footer and the admin login, so the brand
+ * reads identically everywhere and only its scale changes.
+ *
+ * `variant="lockup"` renders the standalone stacked artwork; it is kept for
+ * surfaces that want the mark without the typeset name beside it.
  *
  * Two colourways ship, per the brand sheet: white ink for dark surfaces and
  * charcoal ink for light ones. Both are the same artwork and share an identical
@@ -67,7 +70,7 @@ function warm(source: string): void {
     .logo {
       display: inline-flex;
       align-items: center;
-      gap: 0.7rem;
+      gap: var(--logo-gap, 0.7rem);
     }
 
     .logo__img {

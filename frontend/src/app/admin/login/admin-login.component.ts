@@ -164,6 +164,26 @@ import { LogoComponent } from '../../shared/components/logo/logo.component';
       position: relative;
     }
 
+    /*
+     * The reveal toggle floats over the field, so the value has to stop short
+     * of it — and which side that is takes care, because the two elements
+     * resolve "inline end" against different directions. The button sits on
+     * the wrapper, which follows the page (end = left once the page is RTL),
+     * while the input carries its own dir="ltr", so its inline end is always
+     * the right. Logical padding here would reserve the wrong side in Arabic
+     * and let the value run under the button. Physical padding on both, then,
+     * flipped by page direction via :host-context, since a bare [dir='rtl']
+     * descendant never matches from inside a component.
+     */
+    .login__password .input {
+      padding-right: 2.75rem;
+    }
+
+    :host-context([dir='rtl']) .login__password .input {
+      padding-right: 1rem;
+      padding-left: 2.75rem;
+    }
+
     .login__peek {
       position: absolute;
       inset-inline-end: 0.6rem;

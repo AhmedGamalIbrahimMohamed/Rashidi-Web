@@ -655,6 +655,22 @@ p {
   padding-inline-start: 2.5rem;
 }
 
+/*
+ * Fields that pin themselves to dir="ltr" — an email, a URL, a slug, a phone
+ * number. The attribute is doing real work there: it keeps a Latin value in
+ * Latin order instead of letting bidi reorder the punctuation around it.
+ *
+ * What it should not decide is alignment, and it does — it drags the value to
+ * the left edge while the label above it and the rest of the form sit right,
+ * so the field reads as though it belongs to some other page. Align it to the
+ * form's start side; the character order is untouched, because text-align and
+ * direction are separate things.
+ */
+[dir='rtl'] .input[dir='ltr'],
+[dir='rtl'] .textarea[dir='ltr'] {
+  text-align: right;
+}
+
 .field-error {
   font-size: var(--fs-small);
   color: var(--danger);

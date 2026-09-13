@@ -36,7 +36,7 @@ import { LogoComponent } from '../../shared/components/logo/logo.component';
 
       <div class="intro__stack">
         <div class="intro__logo" #logo>
-          <app-logo variant="lockup" [eager]="true" />
+          <app-logo variant="mark" [eager]="true" />
         </div>
 
         <p class="intro__tagline" #tagline>{{ i18n.dict().intro.tagline }}</p>
@@ -93,8 +93,16 @@ import { LogoComponent } from '../../shared/components/logo/logo.component';
       text-align: center;
     }
 
+    /* The same mark + wordmark the header, footer and admin use, only scaled up
+       for the splash. Sizes stay in the footer's proportion (name ~ half the
+       mark's height, sub ~ a quarter) so the lockup keeps its balance, and the
+       wordmark is forced on at mobile widths where the chrome hides it. */
     .intro__logo {
-      --logo-h: clamp(76px, 14vw, 132px);
+      --logo-h: clamp(58px, 10vw, 96px);
+      --logo-name-size: clamp(1.75rem, 5.4vw, 3rem);
+      --logo-sub-size: clamp(0.6875rem, 1.9vw, 1rem);
+      --logo-gap: clamp(0.85rem, 2vw, 1.35rem);
+      --logo-text-mobile: flex;
     }
 
     .intro__tagline {

@@ -56,16 +56,42 @@
   /* Characters animate on the Y axis; a little perspective makes the rotateX
      in the entrance read as depth rather than a squash. */
   perspective: 800px;
+
+  /*
+   * Room for glyph ink that reaches outside its line box.
+   *
+   * A display size with a tight line-height leaves the font's own ascent and
+   * descent hanging past the box, and two separate things crop what hangs:
+   *
+   *   - `.hero__line` masks the entrance wipe with overflow:hidden, which
+   *     clips at the padding box;
+   *   - `.hero__accent` paints its gradient through background-clip:text. A
+   *     background only covers the element's own box, so ink below that box
+   *     gets no paint at all — and the glyphs themselves are transparent.
+   *
+   * The second is the one that bites, because it makes tails vanish outright
+   * rather than merely clip: on the Arabic headline it erased the bottoms of
+   * ح، ل، و and ي, while the solid-coloured line above it rendered intact.
+   *
+   * Both boxes therefore take the same headroom, and the mask hands it back
+   * as negative margin so the lines sit exactly where they always did.
+   */
+  --ink-headroom: 0.2em;
 }
 
 [dir='rtl'] .hero__title {
   line-height: 1.22;
+  /* Arabic reaches further out of the box than Latin: ج، ح، ل، و drop well
+     below the baseline, and stacked dots sit higher above it. */
+  --ink-headroom: 0.26em;
 }
 
 .hero__line {
   display: block;
   overflow: hidden;
-  padding-block: 0.06em;
+  /* 0.06em of optical breathing room, plus headroom the mask must not eat. */
+  padding-block: calc(0.06em + var(--ink-headroom));
+  margin-block: calc(var(--ink-headroom) * -1);
 }
 
 .hero__char {
@@ -78,6 +104,11 @@
    one in Arabic where per-character splitting would break letter joining. */
 .hero__block {
   display: block;
+  /* Grows the gradient's painting box until it encloses the descenders, then
+     takes itself back out of the layout. Harmless to the wipe: the block and
+     its mask grow together, so a 115% travel still parks it out of sight. */
+  padding-block: var(--ink-headroom);
+  margin-block: calc(var(--ink-headroom) * -1);
 }
 
 .hero__accent {

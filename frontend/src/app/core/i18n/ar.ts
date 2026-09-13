@@ -6,8 +6,8 @@ import { TranslationShape } from './en';
  */
 export const ar: TranslationShape = {
   brand: {
-    name: 'الراشيدي',
-    full: 'الراشيدي للاستيراد والتصدير',
+    name: 'الرشيدي',
+    full: 'الرشيدي للاستيراد والتصدير',
     sub: 'للاستيراد والتصدير',
   },
 

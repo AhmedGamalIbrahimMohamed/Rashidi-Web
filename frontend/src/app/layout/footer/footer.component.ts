@@ -122,20 +122,36 @@ import { LogoComponent } from '../../shared/components/logo/logo.component';
       }
     }
 
+    /* A column label, so it should sit quieter than the links beneath it — but
+       at 11px it was smaller than both the 14px links it heads and the site's
+       own --fs-micro label size, which reads as an oversight rather than as
+       hierarchy. Mono, uppercase, tracked and in --fg-strong keep it clearly a
+       label at 13px, where it is actually comfortable to read. */
     .footer__heading {
       font-family: var(--font-mono);
-      font-size: 0.6875rem;
-      font-weight: 500;
-      letter-spacing: 0.18em;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
       text-transform: uppercase;
       color: var(--fg-strong);
-      margin-bottom: 0.35rem;
+      margin-bottom: 0.5rem;
     }
 
-    [dir='rtl'] .footer__heading {
+    /* Arabic has no uppercase to set it apart and its letterforms carry less
+       presence at a given size, so it takes another step up — and drops both
+       the mono face and the tracking, neither of which a cursive script
+       survives: JetBrains Mono has no Arabic, and spacing the letters apart
+       breaks the joins between them.
+       Uses :host-context rather than a plain "[dir='rtl'] &" descendant,
+       because dir lives on <html> — outside this component. Emulated
+       encapsulation stamps its scope attribute onto every compound selector,
+       so the plain form compiles to
+       [dir="rtl"][_ngcontent-x] .footer__heading[_ngcontent-x]
+       and silently never matches anything. */
+    :host-context([dir='rtl']) .footer__heading {
       font-family: var(--font-body);
       letter-spacing: 0.04em;
-      font-size: 0.8125rem;
+      font-size: 0.9375rem;
     }
 
     .footer__address {

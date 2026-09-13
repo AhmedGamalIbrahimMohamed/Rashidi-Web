@@ -21,7 +21,7 @@ export interface PageSeo {
 
 const SUFFIX = {
   en: 'Rashidy Import & Export',
-  ar: 'الراشيدي للاستيراد والتصدير',
+  ar: 'الرشيدي للاستيراد والتصدير',
 } as const satisfies Record<Locale, string>;
 
 /**
@@ -92,7 +92,7 @@ export class SeoService {
       '@context': 'https://schema.org',
       '@type': 'Organization',
       name: 'Rashidy Import & Export',
-      alternateName: 'الراشيدي للاستيراد والتصدير',
+      alternateName: 'الرشيدي للاستيراد والتصدير',
       url: this.origin,
       logo: this.absolute('/logo.png'),
       description:
