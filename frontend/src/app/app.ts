@@ -2,6 +2,7 @@ import { DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  OnDestroy,
   afterNextRender,
   effect,
   inject,
@@ -11,6 +12,7 @@ import { NavigationEnd, NavigationStart, Router, RouterOutlet } from '@angular/r
 import { filter } from 'rxjs';
 import { CategoryService } from './core/services/category.service';
 import { ContentService } from './core/services/content.service';
+import { CursorService } from './core/services/cursor.service';
 import { I18nService } from './core/services/i18n.service';
 import { MotionService } from './core/services/motion.service';
 import { FooterComponent } from './layout/footer/footer.component';
@@ -69,12 +71,13 @@ const INTRO_SEEN_KEY = 'rashidi.intro_seen';
     }
   `,
 })
-export class App {
+export class App implements OnDestroy {
   private readonly router = inject(Router);
   private readonly document = inject(DOCUMENT);
   private readonly content = inject(ContentService);
   private readonly categories = inject(CategoryService);
   private readonly motion = inject(MotionService);
+  private readonly cursor = inject(CursorService);
   protected readonly i18n = inject(I18nService);
 
   protected readonly showIntro = signal(this.shouldShowIntro());
@@ -85,7 +88,14 @@ export class App {
     // has painted. This belongs to the shell, not to the intro screen: the
     // intro only runs on the home page, so leaving the removal there would
     // strand every deep link behind a permanent spinner.
-    afterNextRender(() => this.document.getElementById('boot')?.remove());
+    afterNextRender(() => {
+      this.document.getElementById('boot')?.remove();
+
+      // Once, from the shell. The cursor's elements live on <body>, outside the
+      // router outlet, so a page must never own one — two pages in a row would
+      // each start their own loop and leave the first one's dot behind.
+      this.cursor.init();
+    });
 
     // Bootstrap data. Both are cached in their services, fail soft, and are
     // needed by the header, footer and home page alike.
@@ -110,6 +120,10 @@ export class App {
       this.i18n.locale();
       queueMicrotask(() => this.motion.refresh());
     });
+  }
+
+  ngOnDestroy(): void {
+    this.cursor.destroy();
   }
 
   protected onIntroFinished(): void {

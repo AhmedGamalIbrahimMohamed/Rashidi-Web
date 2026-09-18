@@ -36,7 +36,10 @@
   align-items: center;
   gap: clamp(2rem, 5vw, 5rem);
   width: 100%;
-  padding-block: clamp(3rem, 8vh, 6rem);
+  /* Breathing room when the hero has height to spare, but it must not be the
+     thing that pushes a full hero past one screen - hence the viewport-relative
+     middle term in place of a fixed 3rem floor. */
+  padding-block: clamp(1.5rem, 4svh, 6rem);
 }
 
 .hero__copy {
@@ -50,7 +53,21 @@
 /* --- Headline ------------------------------------------------------------- */
 
 .hero__title {
-  font-size: var(--fs-display);
+  /*
+   * Width alone is the wrong constraint for this headline.
+   *
+   * `--fs-display` is sized off the viewport width, but what decides whether
+   * the hero fits one screen is how many lines the headline takes. Arabic sets
+   * in two; the Latin headline wraps to four, because "Industrial Machinery."
+   * cannot fit the copy column at a display size. Four lines of ~104px overflow
+   * an 880px viewport by ~77px, and that pushes the scroll hint - which is
+   * anchored to the hero's bottom edge - below the fold.
+   *
+   * So the Latin headline answers to the viewport's height as well. The cap
+   * only engages on short-and-wide screens, which is where the extra wrapping
+   * actually bites.
+   */
+  font-size: min(var(--fs-display), 9.5svh);
   line-height: 0.98;
   margin: 0;
   /* Characters animate on the Y axis; a little perspective makes the rotateX
@@ -116,6 +133,20 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+/*
+ * RTL lifts the height cap: the Arabic headline is two lines at any desktop
+ * height, so it never needs the help.
+ *
+ * This has to go through :host-context. Emulated encapsulation rewrites a bare
+ * `[dir='rtl'] .hero__title` into `[dir='rtl'][_ngcontent-x] .hero__title[_ngcontent-x]`,
+ * which demands the component's scoping attribute on the element carrying
+ * `dir` - and that is <html>, which has no such attribute. :host-context is
+ * the form Angular resolves against ancestors outside the component.
+ */
+:host-context([dir='rtl']) .hero__title {
+  font-size: var(--fs-display);
 }
 
 .hero__lead {
@@ -373,8 +404,7 @@
   position: relative;
   overflow: hidden;
   padding-block: clamp(4rem, 9vw, 7rem);
-  background:
-    radial-gradient(ellipse 60% 80% at 50% 100%, rgba(0, 123, 255, 0.16), transparent 70%),
+  background: radial-gradient(ellipse 60% 80% at 50% 100%, rgba(0, 123, 255, 0.16), transparent 70%),
     var(--ink-1000);
   border-top: 1px solid var(--line);
 }
