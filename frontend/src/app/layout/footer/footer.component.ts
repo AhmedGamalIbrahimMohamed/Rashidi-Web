@@ -68,7 +68,6 @@ import { LogoComponent } from '../../shared/components/logo/logo.component';
           <p class="footer__copy">
             © {{ year }} {{ footer()?.copyright || i18n.dict().brand.full }}
           </p>
-          <a class="footer__admin" routerLink="/admin">{{ i18n.dict().footer.admin }}</a>
         </div>
       </div>
     </footer>
@@ -182,19 +181,6 @@ import { LogoComponent } from '../../shared/components/logo/logo.component';
     .footer__copy {
       font-size: 0.8125rem;
       color: var(--text-mute);
-    }
-
-    .footer__admin {
-      font-family: var(--font-mono);
-      font-size: 0.6875rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--ink-400);
-      transition: color var(--dur-fast) var(--ease);
-
-      &:hover {
-        color: var(--blue);
-      }
     }
 
     @media (max-width: 900px) {

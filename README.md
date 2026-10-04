@@ -71,14 +71,14 @@ in `.env`, which ship as:
 | --- | --- |
 | URL | `/admin` |
 | Email | `rashidy@admin.com` |
-| Password | `0122221724` |
+| Password | `01222271724` |
 
 Re-running the seed never changes an existing account's password. To set or
 reset it — including if it is ever lost:
 
 ```bash
 npm run admin:set                                       # uses ADMIN_* from .env
-npm run admin:set -- rashidy@admin.com 0122221724       # or pass them explicitly
+npm run admin:set -- rashidy@admin.com 01222271724       # or pass them explicitly
 ```
 
 > On a fresh database you can use `npm run db:push` instead of `prisma:deploy`
