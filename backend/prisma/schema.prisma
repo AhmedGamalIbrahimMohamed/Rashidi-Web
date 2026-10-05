@@ -1,5 +1,5 @@
 // Rashidy Import & Export — data model
-// PostgreSQL + Prisma
+// MySQL + Prisma
 //
 // Bilingual strategy: every visitor-facing string is stored as two columns
 // (`...En` / `...Ar`). This keeps queries flat and indexable, avoids a join for
@@ -10,7 +10,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -24,15 +24,15 @@ enum Role {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
+  id        String    @id @default(cuid())
+  email     String    @unique
   password  String // bcrypt hash — never selected into API responses
   name      String
-  role      Role     @default(EDITOR)
-  isActive  Boolean  @default(true)
+  role      Role      @default(EDITOR)
+  isActive  Boolean   @default(true)
   lastLogin DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@map("users")
 }
@@ -52,10 +52,10 @@ model Category {
   slug          String   @unique
   nameEn        String
   nameAr        String
-  descriptionEn String?
-  descriptionAr String?
+  descriptionEn String?  @db.Text
+  descriptionAr String?  @db.Text
   /// Optional decorative image for category headers / filters.
-  imageUrl      String?
+  imageUrl      String?  @db.Text
   sortOrder     Int      @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -75,8 +75,8 @@ model Machine {
   nameAr String
 
   /// One-line teaser used on the catalogue cards.
-  shortDescriptionEn String?
-  shortDescriptionAr String?
+  shortDescriptionEn String? @db.VarChar(500)
+  shortDescriptionAr String? @db.VarChar(500)
 
   /// Long-form copy on the details page.
   descriptionEn String? @db.Text
@@ -103,8 +103,8 @@ model Machine {
   /// Per-page SEO overrides. Falls back to name + shortDescription when null.
   metaTitleEn       String?
   metaTitleAr       String?
-  metaDescriptionEn String?
-  metaDescriptionAr String?
+  metaDescriptionEn String? @db.VarChar(500)
+  metaDescriptionAr String? @db.VarChar(500)
 
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
@@ -129,21 +129,21 @@ model MachineImage {
   machineId String
 
   /// Public URL of the full-size (optimised) image.
-  url String
+  url          String  @db.Text
   /// Public URL of the ~640px card/gallery thumbnail.
-  thumbnailUrl String?
+  thumbnailUrl String? @db.Text
   /// Driver-specific object key, kept so the file can be deleted from storage.
-  storageKey String
+  storageKey   String  @db.Text
 
-  altEn String?
-  altAr String?
+  altEn String? @db.VarChar(255)
+  altAr String? @db.VarChar(255)
 
   /// Exactly one image per machine carries isMain = true (enforced in the service layer).
   isMain    Boolean @default(false)
   sortOrder Int     @default(0)
 
-  width  Int?
-  height Int?
+  width       Int?
+  height      Int?
   /// Tiny base64 LQIP used as the blur-up placeholder while the image loads.
   blurDataUrl String? @db.Text
 
@@ -161,8 +161,8 @@ model MachineSpecification {
 
   labelEn String
   labelAr String
-  valueEn String
-  valueAr String
+  valueEn String  @db.VarChar(255)
+  valueAr String  @db.VarChar(255)
   /// Optional grouping header, e.g. "Hydraulics" / "Electrical".
   groupEn String?
   groupAr String?
@@ -181,8 +181,8 @@ model MachineDocument {
 
   titleEn    String
   titleAr    String
-  url        String
-  storageKey String
+  url        String  @db.Text
+  storageKey String  @db.Text
   mimeType   String?
   fileSize   Int?
   sortOrder  Int     @default(0)
@@ -222,7 +222,7 @@ model ContactMessage {
   /// Language the visitor was browsing in — useful when replying.
   locale    String        @default("en")
   ipAddress String?
-  userAgent String?
+  userAgent String?       @db.Text
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -240,15 +240,15 @@ model ContactMessage {
 /// `valueEn` / `valueAr` hold arbitrary JSON so a block can grow new fields
 /// without a migration.
 model SiteContent {
-  key        String   @id
+  key       String   @id
   /// Grouping used by the dashboard to render sections: "about" | "contact" | "home" | "footer".
-  group      String   @default("general")
-  labelEn    String?
-  labelAr    String?
-  valueEn    Json
-  valueAr    Json
-  sortOrder  Int      @default(0)
-  updatedAt  DateTime @updatedAt
+  group     String   @default("general")
+  labelEn   String?
+  labelAr   String?
+  valueEn   Json
+  valueAr   Json
+  sortOrder Int      @default(0)
+  updatedAt DateTime @updatedAt
 
   @@index([group, sortOrder])
   @@map("site_content")

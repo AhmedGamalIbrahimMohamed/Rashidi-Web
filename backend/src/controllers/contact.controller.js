@@ -57,10 +57,10 @@ export const listMessages = asyncHandler(async (req, res) => {
     ...(query.search
       ? {
           OR: [
-            { name: { contains: query.search, mode: 'insensitive' } },
-            { email: { contains: query.search, mode: 'insensitive' } },
-            { subject: { contains: query.search, mode: 'insensitive' } },
-            { message: { contains: query.search, mode: 'insensitive' } },
+            { name: { contains: query.search } },
+            { email: { contains: query.search } },
+            { subject: { contains: query.search } },
+            { message: { contains: query.search } },
           ],
         }
       : {}),

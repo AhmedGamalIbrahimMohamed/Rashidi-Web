@@ -25,6 +25,10 @@ export const env = {
   port: int(process.env.PORT, 4000),
   apiPrefix: process.env.API_PREFIX || '/api',
 
+  // Built Angular bundle. When the directory exists the API also serves the
+  // site, so a single Node process can host everything on one domain.
+  webDir: process.env.WEB_DIR || 'public',
+
   databaseUrl: process.env.DATABASE_URL,
 
   jwt: {

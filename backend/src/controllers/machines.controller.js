@@ -79,11 +79,11 @@ export const listMachines = asyncHandler(async (req, res) => {
     ...(query.search
       ? {
           OR: [
-            { nameEn: { contains: query.search, mode: 'insensitive' } },
+            { nameEn: { contains: query.search } },
             { nameAr: { contains: query.search } },
-            { brand: { contains: query.search, mode: 'insensitive' } },
-            { modelNumber: { contains: query.search, mode: 'insensitive' } },
-            { shortDescriptionEn: { contains: query.search, mode: 'insensitive' } },
+            { brand: { contains: query.search } },
+            { modelNumber: { contains: query.search } },
+            { shortDescriptionEn: { contains: query.search } },
             { shortDescriptionAr: { contains: query.search } },
           ],
         }

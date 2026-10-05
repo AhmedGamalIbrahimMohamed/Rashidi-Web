@@ -1,10 +1,12 @@
 {
   "name": "rashidi-backend",
   "version": "1.0.0",
-  "description": "Rashidy Import & Export — REST API (Express + Prisma + PostgreSQL)",
+  "description": "Rashidy Import & Export — REST API (Express + Prisma + MySQL)",
   "type": "module",
-  "main": "src/server.js",
-  "engines": { "node": ">=20" },
+  "main": "src/boot.js",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
@@ -15,9 +17,13 @@
     "db:push": "prisma db push",
     "db:seed": "node prisma/seed.js",
     "admin:set": "node prisma/set-admin.js",
-    "setup": "prisma generate && prisma migrate deploy && node prisma/seed.js"
+    "setup": "prisma generate && prisma migrate deploy && node prisma/seed.js",
+    "build": "prisma generate",
+    "start:prod": "node src/boot.js"
   },
-  "prisma": { "seed": "node prisma/seed.js" },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.699.0",
     "@aws-sdk/s3-request-presigner": "^3.699.0",
@@ -33,10 +39,8 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.16",
+    "prisma": "^6.1.0",
     "sharp": "^0.33.5",
     "zod": "^3.24.1"
-  },
-  "devDependencies": {
-    "prisma": "^6.1.0"
   }
 }

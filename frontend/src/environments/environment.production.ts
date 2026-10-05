@@ -8,7 +8,7 @@ export const environment = {
   production: true,
 
   apiUrl: '/api',
-  siteUrl: 'https://www.rashidi-ie.com',
+  siteUrl: 'https://elrashidy.site',
 
   auth: {
     tokenKey: 'rashidi.access_token',

@@ -3,5 +3,3 @@ Allow: /
 
 # The dashboard holds no public content and must not be indexed.
 Disallow: /admin
-
-Sitemap: https://www.rashidi-ie.com/sitemap.xml

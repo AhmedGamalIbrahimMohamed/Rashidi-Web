@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import compression from 'compression';
 import cors from 'cors';
@@ -62,6 +63,33 @@ export function createApp() {
   }
 
   app.use(env.apiPrefix, apiLimiter, apiRouter);
+
+  const webDir = path.resolve(process.cwd(), env.webDir);
+  const webIndex = path.join(webDir, 'index.html');
+  if (fs.existsSync(webIndex)) {
+    // Hashed bundles are immutable; index.html must always be revalidated so a
+    // deploy is picked up on the next visit.
+    app.use(
+      express.static(webDir, {
+        index: false,
+        dotfiles: 'deny',
+        setHeaders(res, filePath) {
+          if (/-[A-Z0-9]{8}\.(js|css)$/.test(filePath)) {
+            res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+          }
+        },
+      }),
+    );
+
+    // Client-side routes all resolve to the SPA shell.
+    app.get('*', (req, res, next) => {
+      const reserved = [env.apiPrefix, env.storage.local.route];
+      if (reserved.some((prefix) => req.path === prefix || req.path.startsWith(`${prefix}/`))) return next();
+      if (!req.accepts('html')) return next();
+      res.setHeader('Cache-Control', 'no-cache');
+      res.sendFile(webIndex);
+    });
+  }
 
   app.get('/', (_req, res) => {
     res.json({
